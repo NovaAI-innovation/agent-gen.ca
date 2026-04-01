@@ -1,0 +1,44 @@
+# Agent Zero Framework (exclude)
+../../../*
+../../../agents/*
+../../../tmp/*
+
+# Python
+__pycache__/
+*.py[cod]?
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Node.js
+node_modules/
+.npm
+.npminstall
+
+# Next.js
+.next/
+out/
+
+# Deploy
+.deploy/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temp
+*.tmp
+tmp/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo

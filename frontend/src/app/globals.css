@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 10 10 10;
+    --surface: 26 26 26;
+    --glass: 0 0% 100%;
+    --text: 0 0% 100%;
+    --text-secondary: 0 0% 69%;
+    --neon-cyan: 189 100% 60%;
+    --neon-magenta: 330 100% 64%;
+    --neon-lime: 150 100% 54%;
+    --glow-cyan: 189 100% 60% / 0.3;
+    --glow-magenta: 330 100% 64% / 0.3;
+    --glow-lime: 150 100% 54% / 0.3;
+    --border: 240 5.3% 26%;
+    --input: 240 5.9% 10%;
+    --ring: 10 10 10;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 10 10 10;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 98%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Cyber Neon Glows */
+.neon-cyan {
+  box-shadow: 0 0 20px rgb(var(--neon-cyan) / 0.5);
+}
+.neon-magenta {
+  box-shadow: 0 0 20px rgb(var(--neon-magenta) / 0.5);
+}
+.neon-lime {
+  box-shadow: 0 0 20px rgb(var(--neon-lime) / 0.5);
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgb(var(--glass) / 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(var(--glass) / 0.2);
+}
+
+.glass-hover:hover {
+  background: rgb(var(--glass) / 0.2);
+}
+
+/* Cyber Typography */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--neon-cyan));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--neon-magenta));
+}

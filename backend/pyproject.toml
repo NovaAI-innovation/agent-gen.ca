@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "saas-task-manager-backend"
+version = "0.1.0"
+description = "FastAPI backend for SAAS Task Manager MVP"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[all]",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg",
+    "alembic",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "python-multipart",
+    "eth-account>=0.13.1",
+    "asyncpg>=0.29.0",
+    "slowapi",
+    "structlog",
+    "python-dotenv",
+    "httpx",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "black",
+    "isort",
+    "mypy",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+    "alembic",
+    "eth-account>=0.13.1",
+    "asyncpg>=0.29.0",
+    "slowapi",
+    "structlog",

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: agentgen
+      POSTGRES_USER: agentgen
+      POSTGRES_PASSWORD: agentgen123
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U agentgen -d agentgen']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@agent-gen.ca
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - '8080:80'
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../backend/Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://agentgen:agentgen123@db:5432/agentgen
+      SECRET_KEY: dev-secret-key-change-in-prod
+    ports:
+      - '8000:8000'
+    volumes:
+      - ../backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: agentgen_default

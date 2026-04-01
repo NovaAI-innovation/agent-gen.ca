@@ -1,0 +1,41 @@
+# Multi-stage Dockerfile for FastAPI Backend
+
+# Install dependencies
+FROM python:3.12-slim AS deps
+WORKDIR /app
+
+# Copy pyproject.toml + poetry.lock
+COPY backend/pyproject.toml backend/poetry.lock* ./
+
+# Install Poetry + deps
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# Builder stage
+FROM python:3.12-slim AS builder
+WORKDIR /app
+
+# Copy deps
+COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=deps /usr/local/bin /usr/local/bin
+
+# Copy source
+COPY backend/ .
+
+# Runtime stage
+FROM python:3.12-slim AS runner
+WORKDIR /app
+
+# Copy built app
+COPY --from=builder /app ./
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8000
+
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
