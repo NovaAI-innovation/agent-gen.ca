@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import webpack from "webpack";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // @solana/web3.js requires Node.js globals polyfilled in the browser

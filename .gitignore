@@ -42,3 +42,4 @@ tmp/
 .idea/
 *.swp
 *.swo
+.aider*
