@@ -51,6 +51,52 @@ CREATE INDEX auth_nonces_wallet_idx ON auth_nonces (wallet_address);
 CREATE INDEX auth_nonces_expires_idx ON auth_nonces (expires_at);
 
 -- ============================================================
+-- AUTH SESSIONS (stateful wallet sessions per browser/device)
+-- ============================================================
+
+CREATE TABLE auth_sessions (
+    id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id            UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    wallet_address     VARCHAR(44) NOT NULL,
+    refresh_token_hash VARCHAR(64) NOT NULL UNIQUE,
+    status             VARCHAR(20) NOT NULL DEFAULT 'active',
+    expires_at         TIMESTAMPTZ NOT NULL,
+    last_used_at       TIMESTAMPTZ,
+    revoked_at         TIMESTAMPTZ,
+    ip_hash            VARCHAR(64),
+    user_agent_hash    VARCHAR(64),
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX auth_sessions_user_status_idx ON auth_sessions (user_id, status);
+CREATE INDEX auth_sessions_wallet_idx ON auth_sessions (wallet_address);
+CREATE INDEX auth_sessions_expires_idx ON auth_sessions (expires_at);
+CREATE INDEX auth_sessions_revoked_idx ON auth_sessions (revoked_at);
+
+-- ============================================================
+-- AUTH AUDIT EVENTS
+-- ============================================================
+
+CREATE TABLE auth_audit_events (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id         UUID REFERENCES users(id) ON DELETE SET NULL,
+    session_id      UUID REFERENCES auth_sessions(id) ON DELETE SET NULL,
+    wallet_address  VARCHAR(44),
+    event_type      VARCHAR(50) NOT NULL,
+    details         TEXT,
+    ip_hash         VARCHAR(64),
+    user_agent_hash VARCHAR(64),
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX auth_audit_events_user_idx ON auth_audit_events (user_id);
+CREATE INDEX auth_audit_events_session_idx ON auth_audit_events (session_id);
+CREATE INDEX auth_audit_events_wallet_idx ON auth_audit_events (wallet_address);
+CREATE INDEX auth_audit_events_event_type_idx ON auth_audit_events (event_type);
+CREATE INDEX auth_audit_events_created_at_idx ON auth_audit_events (created_at DESC);
+
+-- ============================================================
 -- CATEGORIES (self-referential for nesting)
 -- ============================================================
 

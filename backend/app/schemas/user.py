@@ -7,6 +7,9 @@ from datetime import datetime
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    wallet_address: str
+    session_id: UUID
+    expires_at: datetime
 
 
 class UserPublic(BaseModel):

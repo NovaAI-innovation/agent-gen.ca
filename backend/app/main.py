@@ -1,9 +1,19 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import app.db.database as db
 
-app = FastAPI(title="agent-gen.ca API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with db.engine.begin() as conn:
+        await conn.run_sync(db.Base.metadata.create_all)
+    yield
+
+
+app = FastAPI(title="agent-gen.ca API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,13 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def startup():
-    async with db.engine.begin() as conn:
-        await conn.run_sync(db.Base.metadata.create_all)
-
 
 @app.get("/")
 def read_root():
