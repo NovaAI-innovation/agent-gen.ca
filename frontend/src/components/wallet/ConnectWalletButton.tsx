@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/lib/api";
 
 export function ConnectWalletButton() {
+  const [mounted, setMounted] = useState(false);
   const { publicKey, signMessage, connected, disconnecting } = useWallet();
   const { token, setToken, fetchMe, logout } = useAuthStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (disconnecting) {
@@ -46,6 +51,19 @@ export function ConnectWalletButton() {
 
     authenticate();
   }, [connected, publicKey, signMessage, token, setToken, fetchMe]);
+
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        className="wallet-adapter-button wallet-adapter-button-trigger"
+        disabled
+        aria-hidden="true"
+      >
+        Select Wallet
+      </button>
+    );
+  }
 
   return <WalletMultiButton className="wallet-trigger" />;
 }
