@@ -1,0 +1,230 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "AGENT GEN .CA" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - generic [ref=e7]: AGENT
+            - generic [ref=e8]: GEN
+            - generic [ref=e9]: .CA
+        - button "Select Wallet" [ref=e12] [cursor=pointer]
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e17]: Solana-powered | Community-driven | Open marketplace
+            - heading "Ship, discover, and scale AI agents and tools" [level=1] [ref=e18]:
+              - generic [ref=e19]: Ship, discover, and scale
+              - generic [ref=e20]: AI agents and tools
+            - paragraph [ref=e21]: Discover, share, and monetize MCP servers, agent skills, custom agents, and packs. Connect your wallet, publish with confidence, and grow in a high-signal builder ecosystem.
+            - generic [ref=e22]:
+              - link "Browse Marketplace" [ref=e23] [cursor=pointer]:
+                - /url: /marketplace
+                - text: Browse Marketplace
+                - img [ref=e24]
+              - link "Publish a Listing" [ref=e26] [cursor=pointer]:
+                - /url: /publish
+                - text: Publish a Listing
+                - img [ref=e27]
+            - generic [ref=e30]:
+              - generic [ref=e31]:
+                - generic [ref=e32]: 500+
+                - generic [ref=e33]: Listings
+              - generic [ref=e34]:
+                - generic [ref=e35]: 1.2K
+                - generic [ref=e36]: Contributors
+              - generic [ref=e37]:
+                - generic [ref=e38]: 48K
+                - generic [ref=e39]: Downloads
+              - generic [ref=e40]:
+                - generic [ref=e41]: "4.8"
+                - generic [ref=e42]: Avg Rating
+          - complementary [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]:
+                - generic [ref=e46]:
+                  - paragraph [ref=e47]: Live Marketplace Pulse
+                  - heading "Realtime ecosystem signal" [level=2] [ref=e48]
+                - generic [ref=e49]:
+                  - img [ref=e50]
+                  - text: Live
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - generic [ref=e54]:
+                    - paragraph [ref=e55]: New listings
+                    - paragraph [ref=e56]: last 7 days
+                  - generic [ref=e57]: "+24"
+                - generic [ref=e58]:
+                  - generic [ref=e59]:
+                    - paragraph [ref=e60]: Verified creators
+                    - paragraph [ref=e61]: wallet linked
+                  - generic [ref=e62]: "312"
+                - generic [ref=e63]:
+                  - generic [ref=e64]:
+                    - paragraph [ref=e65]: SOL volume
+                    - paragraph [ref=e66]: rolling 30d
+                  - generic [ref=e67]: 8.4k
+                - generic [ref=e68]:
+                  - generic [ref=e69]:
+                    - paragraph [ref=e70]: Avg install time
+                    - paragraph [ref=e71]: one-click flow
+                  - generic [ref=e72]: 48s
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: New skill drops daily
+            - generic [ref=e77]: SOL-native creator payouts
+            - generic [ref=e78]: One-click installs
+            - generic [ref=e79]: Wallet-verified publishers
+            - generic [ref=e80]: Marketplace reputation layer
+          - generic [ref=e81]:
+            - generic [ref=e82]: New skill drops daily
+            - generic [ref=e83]: SOL-native creator payouts
+            - generic [ref=e84]: One-click installs
+            - generic [ref=e85]: Wallet-verified publishers
+            - generic [ref=e86]: Marketplace reputation layer
+      - generic [ref=e87]:
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: Explore
+          - heading "Browse by type" [level=2] [ref=e91]
+        - generic [ref=e92]:
+          - link "MCP Servers Model Context Protocol packages 140+ listings" [ref=e93] [cursor=pointer]:
+            - /url: /mcp-servers
+            - img [ref=e95]
+            - generic [ref=e98]:
+              - heading "MCP Servers" [level=3] [ref=e99]
+              - paragraph [ref=e100]: Model Context Protocol packages
+            - generic [ref=e101]:
+              - generic [ref=e102]: 140+ listings
+              - img [ref=e103]
+          - link "Agent Skills Reusable tools for AI agents 320+ listings" [ref=e105] [cursor=pointer]:
+            - /url: /agent-skills
+            - img [ref=e107]
+            - generic [ref=e109]:
+              - heading "Agent Skills" [level=3] [ref=e110]
+              - paragraph [ref=e111]: Reusable tools for AI agents
+            - generic [ref=e112]:
+              - generic [ref=e113]: 320+ listings
+              - img [ref=e114]
+          - link "Custom Agents Full agent configs and personalities 85+ listings" [ref=e116] [cursor=pointer]:
+            - /url: /agents
+            - img [ref=e118]
+            - generic [ref=e121]:
+              - heading "Custom Agents" [level=3] [ref=e122]
+              - paragraph [ref=e123]: Full agent configs and personalities
+            - generic [ref=e124]:
+              - generic [ref=e125]: 85+ listings
+              - img [ref=e126]
+          - link "Packs Curated bundles of marketplace items 40+ listings" [ref=e128] [cursor=pointer]:
+            - /url: /packs
+            - img [ref=e130]
+            - generic [ref=e134]:
+              - heading "Packs" [level=3] [ref=e135]
+              - paragraph [ref=e136]: Curated bundles of marketplace items
+            - generic [ref=e137]:
+              - generic [ref=e138]: 40+ listings
+              - img [ref=e139]
+      - generic [ref=e141]:
+        - generic [ref=e143]:
+          - paragraph [ref=e144]: Featured
+          - heading "High-signal builds this week" [level=2] [ref=e145]
+        - generic [ref=e146]:
+          - link "Security Skill Prompt Firewall Policy-aware runtime checks for risky tool calls and prompt injection vectors. 2.9k installs 4.9 View listing" [ref=e147] [cursor=pointer]:
+            - /url: /marketplace
+            - paragraph [ref=e148]: Security Skill
+            - heading "Prompt Firewall" [level=3] [ref=e149]
+            - paragraph [ref=e150]: Policy-aware runtime checks for risky tool calls and prompt injection vectors.
+            - generic [ref=e151]:
+              - generic [ref=e152]: 2.9k installs
+              - generic [ref=e153]:
+                - img [ref=e154]
+                - text: "4.9"
+            - generic [ref=e156]:
+              - text: View listing
+              - img [ref=e157]
+          - link "MCP Server RAG Ops MCP Unified retrieval, chunk scoring, and eval traces for production QA pipelines. 1.7k installs 4.8 View listing" [ref=e159] [cursor=pointer]:
+            - /url: /marketplace
+            - paragraph [ref=e160]: MCP Server
+            - heading "RAG Ops MCP" [level=3] [ref=e161]
+            - paragraph [ref=e162]: Unified retrieval, chunk scoring, and eval traces for production QA pipelines.
+            - generic [ref=e163]:
+              - generic [ref=e164]: 1.7k installs
+              - generic [ref=e165]:
+                - img [ref=e166]
+                - text: "4.8"
+            - generic [ref=e168]:
+              - text: View listing
+              - img [ref=e169]
+          - link "Pack Creator Revenue Pack Listing templates, launch automations, and payout dashboards for new publishers. 980 installs 4.7 View listing" [ref=e171] [cursor=pointer]:
+            - /url: /marketplace
+            - paragraph [ref=e172]: Pack
+            - heading "Creator Revenue Pack" [level=3] [ref=e173]
+            - paragraph [ref=e174]: Listing templates, launch automations, and payout dashboards for new publishers.
+            - generic [ref=e175]:
+              - generic [ref=e176]: 980 installs
+              - generic [ref=e177]:
+                - img [ref=e178]
+                - text: "4.7"
+            - generic [ref=e180]:
+              - text: View listing
+              - img [ref=e181]
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - paragraph [ref=e186]: Workflow
+          - heading "From creator idea to monetized install" [level=2] [ref=e187]
+        - generic [ref=e188]:
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - img [ref=e192]
+              - generic [ref=e195]: "01"
+            - heading "Verify" [level=3] [ref=e196]
+            - paragraph [ref=e197]: Connect Phantom wallet and establish creator identity before publishing.
+          - generic [ref=e198]:
+            - generic [ref=e199]:
+              - img [ref=e201]
+              - generic [ref=e204]: "02"
+            - heading "Publish" [level=3] [ref=e205]
+            - paragraph [ref=e206]: Ship MCP servers, skills, agents, or packs with versioned metadata and pricing.
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - img [ref=e210]
+              - generic [ref=e214]: "03"
+            - heading "Monetize" [level=3] [ref=e215]
+            - paragraph [ref=e216]: Track installs, ratings, and payouts from a single creator dashboard.
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - paragraph [ref=e220]: Community
+          - heading "Built for builders, by builders" [level=2] [ref=e221]
+          - paragraph [ref=e222]: Publish MCP servers, skills, and agents. Earn SOL when others use your work. Keep ownership, build reputation, and grow with a focused technical community.
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - img [ref=e225]
+              - text: Peer-reviewed ratings
+            - generic [ref=e227]:
+              - img [ref=e228]
+              - text: One-click installs
+            - generic [ref=e231]:
+              - generic [ref=e232]: O
+              - text: SOL-native payments
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - paragraph [ref=e235]: Creator retention
+            - paragraph [ref=e236]: 87%
+          - generic [ref=e237]:
+            - paragraph [ref=e238]: Average payout cycle
+            - paragraph [ref=e239]: 24h settlement
+          - generic [ref=e240]:
+            - paragraph [ref=e241]: Trust surface
+            - paragraph [ref=e242]:
+              - img [ref=e243]
+              - text: Wallet verification + signed provenance + version history
+      - generic [ref=e247]:
+        - generic [ref=e248]:
+          - paragraph [ref=e249]: Launch your first listing
+          - heading "Start publishing in under five minutes" [level=2] [ref=e250]
+        - link "Open Publish Flow" [ref=e251] [cursor=pointer]:
+          - /url: /publish
+          - text: Open Publish Flow
+          - img [ref=e252]
+  - button "Open Next.js Dev Tools" [ref=e259] [cursor=pointer]:
+    - img [ref=e260]

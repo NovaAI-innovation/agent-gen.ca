@@ -3,21 +3,20 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "saas-task-manager-backend"
+name = "agent-gen-backend"
 version = "0.1.0"
-description = "FastAPI backend for SAAS Task Manager MVP"
+description = "FastAPI backend for agent-gen.ca — AI Agent Marketplace"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi[all]",
     "sqlalchemy[asyncio]>=2.0",
-    "asyncpg",
+    "asyncpg>=0.29.0",
     "alembic",
     "python-jose[cryptography]",
-    "passlib[bcrypt]",
+    "PyNaCl>=1.5.0",
+    "base58>=2.1.1",
     "python-multipart",
-    "eth-account>=0.13.1",
-    "asyncpg>=0.29.0",
     "slowapi",
     "structlog",
     "python-dotenv",
@@ -37,8 +36,3 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
-    "alembic",
-    "eth-account>=0.13.1",
-    "asyncpg>=0.29.0",
-    "slowapi",
-    "structlog",

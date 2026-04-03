@@ -39,7 +39,7 @@ services:
       dockerfile: ../backend/Dockerfile
     restart: always
     environment:
-      DATABASE_URL: postgresql://agentgen:agentgen123@db:5432/agentgen
+      DATABASE_URL: postgresql+asyncpg://agentgen:agentgen123@db:5432/agentgen
       SECRET_KEY: dev-secret-key-change-in-prod
     ports:
       - '8000:8000'
@@ -64,7 +64,7 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-    command: npm run dev
+    command: npm run dev -- --webpack --hostname 0.0.0.0 --port 3000
 
 volumes:
   postgres_data:

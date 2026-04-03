@@ -2,11 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY pyproject.toml .
+COPY pyproject.toml README.md .
+COPY app ./app
 
 RUN pip install --no-cache-dir hatchling && pip install --no-cache-dir -e .
-
-COPY app ./app
 
 EXPOSE 8000
 
