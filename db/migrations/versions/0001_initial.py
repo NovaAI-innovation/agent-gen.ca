@@ -1,9 +1,8 @@
 """Initial schema
 
-Revision ID: 0001
-Revises: 
+Revision ID: 0001_initial
+Revises:
 Create Date: 2026-04-01 08:00:00.000000
-
 """
 from alembic import op
 import sqlalchemy as sa
@@ -35,7 +34,7 @@ def upgrade() -> None:
 
     # Trigger function
     op.execute('''
-        CREATE OR REPLACE FUNCTION now()
+        CREATE OR REPLACE FUNCTION set_updated_at_0001()
         RETURNS TRIGGER AS $$
         BEGIN
            NEW.updated_at = now();
@@ -43,7 +42,7 @@ def upgrade() -> None:
         END;
         $$ language 'plpgsql';
     ''')
-    op.execute('CREATE TRIGGER users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION now();')
+    op.execute('CREATE TRIGGER users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at_0001();')
 
     # Agents table
     op.create_table('agents',
@@ -63,7 +62,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_agents_owner_id'), 'agents', ['owner_id'], unique=False)
     op.create_index(op.f('ix_agents_price'), 'agents', ['price'], unique=False)
     op.create_index('agents_name_trgm_idx', 'agents', ['name'], postgresql_ops={'name': 'gin_trgm_ops'}, postgresql_using='gin')
-    op.execute('CREATE TRIGGER agents_updated_at BEFORE UPDATE ON agents FOR EACH ROW EXECUTE FUNCTION now();')
+    op.execute('CREATE TRIGGER agents_updated_at BEFORE UPDATE ON agents FOR EACH ROW EXECUTE FUNCTION set_updated_at_0001();')
 
     # Seed data
     op.execute("""
@@ -85,7 +84,7 @@ def downgrade() -> None:
     op.execute("DELETE FROM agents WHERE owner_id IN (SELECT id FROM users WHERE wallet_address IN ('0x742d35Cc6634C0532925a3b8D7c74B1f7bB9a3E1', '0x1234567890abcdef1234567890abcdef12345678')); DELETE FROM users WHERE wallet_address IN ('0x742d35Cc6634C0532925a3b8D7c74B1f7bB9a3E1', '0x1234567890abcdef1234567890abcdef12345678');")
 
     # Drop agents table
-    op.drop_trigger('agents_updated_at', 'agents')
+    op.execute('DROP TRIGGER IF EXISTS agents_updated_at ON agents;')
     op.drop_index('agents_name_trgm_idx', table_name='agents', postgresql_using='gin')
     op.drop_index(op.f('ix_agents_price'), table_name='agents')
     op.drop_index(op.f('ix_agents_owner_id'), table_name='agents')
@@ -93,9 +92,9 @@ def downgrade() -> None:
     op.drop_table('agents')
 
     # Drop users table
-    op.drop_trigger('users_updated_at', 'users')
+    op.execute('DROP TRIGGER IF EXISTS users_updated_at ON users;')
     op.drop_index('users_wallet_address_trgm_idx', table_name='users', postgresql_using='gin')
     op.drop_index(op.f('ix_users_created_at'), table_name='users')
     op.drop_table('users')
 
-    op.execute('DROP FUNCTION IF EXISTS now() CASCADE;')
+    op.execute('DROP FUNCTION IF EXISTS set_updated_at_0001() CASCADE;')

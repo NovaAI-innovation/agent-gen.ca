@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/lib/api";
 
+interface ChallengeResponse {
+  challenge_id: string;
+  nonce: string;
+  message: string;
+}
+
 export function ConnectWalletButton() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
   const { publicKey, signMessage, connected, disconnecting } = useWallet();
   const { token, setToken, fetchMe, logout } = useAuthStore();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     if (disconnecting) {
-      logout();
+      void logout({ remote: true });
     }
   }, [disconnecting, logout]);
 
@@ -28,17 +34,27 @@ export function ConnectWalletButton() {
       try {
         const wallet = publicKey.toBase58();
 
-        // 1. Get challenge nonce
-        const { data } = await api.get(`/auth/challenge?wallet=${wallet}`);
-        const message = new TextEncoder().encode(data.message);
+        const { data } = await api.get<ChallengeResponse>("/auth/challenge", {
+          params: { wallet },
+        });
 
-        // 2. Sign with Phantom
+        // Validate message before signing to prevent signing tampered content.
+        if (
+          !data.message.includes(wallet) ||
+          !data.message.includes(data.nonce) ||
+          !data.message.includes("wants you to sign in with your Solana account")
+        ) {
+          throw new Error("Challenge message failed integrity check");
+        }
+
+        const message = new TextEncoder().encode(data.message);
         const signature = await signMessage(message);
         const signatureBase64 = Buffer.from(signature).toString("base64");
 
-        // 3. Verify and get JWT
         const res = await api.post("/auth/verify", {
           wallet,
+          challenge_id: data.challenge_id,
+          nonce: data.nonce,
           signature: signatureBase64,
         });
 

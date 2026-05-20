@@ -1,8 +1,22 @@
+import { History } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/system/PageHeader";
+
 export default function InstallHistoryPage() {
   return (
-    <div>
-      <h2 className="mb-4 text-2xl font-bold">Install History</h2>
-      <p className="text-muted-foreground">Your installed listings will appear here.</p>
+    <div className="space-y-5">
+      <PageHeader
+        icon={History}
+        eyebrow="Creator"
+        title="Install history"
+        subtitle="Review install activity across your listings and identify high-retention assets."
+        accentClassName="text-cyan-300"
+      />
+      <EmptyState
+        icon={History}
+        title="No install activity yet"
+        description="Install history will appear here after your listings receive downloads and successful onboarding events."
+      />
     </div>
   );
 }

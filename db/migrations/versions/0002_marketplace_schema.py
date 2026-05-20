@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "0002"
-down_revision = "0001"
+down_revision = "0001_initial"
 branch_labels = None
 depends_on = None
 
@@ -90,7 +90,18 @@ def upgrade() -> None:
     op.create_table(
         "listings",
         sa.Column("id", postgresql.UUID(as_uuid=True), server_default=sa.text("uuid_generate_v4()"), primary_key=True),
-        sa.Column("type", sa.Enum("mcp_server", "agent_skill", "custom_agent", "pack", name="listing_type", create_type=False), nullable=False),
+        sa.Column(
+            "type",
+            postgresql.ENUM(
+                "mcp_server",
+                "agent_skill",
+                "custom_agent",
+                "pack",
+                name="listing_type",
+                create_type=False,
+            ),
+            nullable=False,
+        ),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("slug", sa.String(255), nullable=False),
         sa.Column("description", sa.Text, nullable=True),
@@ -188,7 +199,18 @@ def upgrade() -> None:
         sa.Column("seller_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="RESTRICT"), nullable=False),
         sa.Column("price_sol", sa.Numeric(18, 9), nullable=False),
         sa.Column("tx_signature", sa.String(88), nullable=True),
-        sa.Column("status", sa.Enum("pending", "confirmed", "failed", name="purchase_status", create_type=False), nullable=False, server_default="pending"),
+        sa.Column(
+            "status",
+            postgresql.ENUM(
+                "pending",
+                "confirmed",
+                "failed",
+                name="purchase_status",
+                create_type=False,
+            ),
+            nullable=False,
+            server_default="pending",
+        ),
         sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False, server_default=sa.text("NOW()")),
         sa.UniqueConstraint("tx_signature", name="purchases_tx_sig_unique"),
     )

@@ -11,6 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE listing_type AS ENUM ('mcp_server', 'agent_skill', 'custom_agent', 'pack');
 CREATE TYPE purchase_status AS ENUM ('pending', 'confirmed', 'failed');
+CREATE TYPE payment_intent_status AS ENUM ('pending', 'submitted', 'confirmed', 'failed', 'expired');
 
 -- ============================================================
 -- USERS
@@ -41,6 +42,11 @@ CREATE TABLE auth_nonces (
     id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     wallet_address VARCHAR(44) NOT NULL,
     nonce         VARCHAR(64) NOT NULL,
+    message       TEXT NOT NULL,
+    domain        VARCHAR(255) NOT NULL,
+    uri           TEXT NOT NULL,
+    chain_id      VARCHAR(64) NOT NULL,
+    issued_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     expires_at    TIMESTAMPTZ NOT NULL,
     used          BOOLEAN NOT NULL DEFAULT false,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -260,8 +266,14 @@ CREATE TABLE purchases (
     buyer_id     UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     seller_id    UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     price_sol    DECIMAL(18,9) NOT NULL CHECK (price_sol > 0),
+    currency_mint VARCHAR(44) NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',
+    amount_lamports BIGINT,
     tx_signature VARCHAR(88),                           -- Solana transaction signature
     status       purchase_status NOT NULL DEFAULT 'pending',
+    cluster      VARCHAR(32) NOT NULL DEFAULT 'mainnet-beta',
+    confirmed_slot BIGINT,
+    finalized_at TIMESTAMPTZ,
+    failure_reason TEXT,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -269,6 +281,70 @@ CREATE INDEX purchases_buyer_idx ON purchases (buyer_id);
 CREATE INDEX purchases_seller_idx ON purchases (seller_id);
 CREATE INDEX purchases_listing_idx ON purchases (listing_id);
 CREATE UNIQUE INDEX purchases_tx_sig_idx ON purchases (tx_signature) WHERE tx_signature IS NOT NULL;
+CREATE INDEX purchases_cluster_status_idx ON purchases (cluster, status);
+
+-- ============================================================
+-- PAYMENT INTENTS (server-side verification contract)
+-- ============================================================
+
+CREATE TABLE payment_intents (
+    id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    purchase_id               UUID REFERENCES purchases(id) ON DELETE SET NULL,
+    buyer_id                  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seller_id                 UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    listing_id                UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+    expected_recipient_wallet VARCHAR(44) NOT NULL,
+    expected_mint             VARCHAR(44) NOT NULL,
+    expected_amount_lamports  BIGINT NOT NULL,
+    memo                      VARCHAR(128),
+    idempotency_key           VARCHAR(64) NOT NULL,
+    submitted_signature       VARCHAR(88),
+    status                    payment_intent_status NOT NULL DEFAULT 'pending',
+    failure_reason            TEXT,
+    expires_at                TIMESTAMPTZ NOT NULL,
+    created_at                TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at                TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX payment_intents_idempotency_key_idx ON payment_intents (idempotency_key);
+CREATE UNIQUE INDEX payment_intents_submitted_signature_idx ON payment_intents (submitted_signature) WHERE submitted_signature IS NOT NULL;
+CREATE INDEX payment_intents_status_expires_idx ON payment_intents (status, expires_at);
+CREATE INDEX payment_intents_listing_buyer_idx ON payment_intents (listing_id, buyer_id);
+
+-- ============================================================
+-- ON-CHAIN TRANSACTION OBSERVATIONS
+-- ============================================================
+
+CREATE TABLE onchain_transactions (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    signature           VARCHAR(88) NOT NULL,
+    cluster             VARCHAR(32) NOT NULL,
+    slot                BIGINT,
+    confirmation_status VARCHAR(32),
+    err_json            JSONB,
+    logs_json           JSONB,
+    raw_meta_json       JSONB,
+    observed_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    finalized_at        TIMESTAMPTZ
+);
+
+CREATE UNIQUE INDEX onchain_transactions_signature_idx ON onchain_transactions (signature);
+CREATE INDEX onchain_transactions_cluster_slot_idx ON onchain_transactions (cluster, slot);
+CREATE INDEX onchain_transactions_cluster_status_idx ON onchain_transactions (cluster, confirmation_status);
+
+-- ============================================================
+-- LISTING PAYMENT CONFIG
+-- ============================================================
+
+CREATE TABLE listing_payment_config (
+    listing_id             UUID PRIMARY KEY REFERENCES listings(id) ON DELETE CASCADE,
+    seller_wallet_address  VARCHAR(44) NOT NULL,
+    accepted_mint          VARCHAR(44) NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',
+    platform_fee_bps       INT NOT NULL DEFAULT 250,
+    active                 BOOLEAN NOT NULL DEFAULT true,
+    created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- ============================================================
 -- TRANSACTIONS: TIPS
@@ -336,6 +412,24 @@ CREATE INDEX install_history_user_idx ON install_history (user_id);
 CREATE INDEX install_history_listing_idx ON install_history (listing_id);
 
 -- ============================================================
+-- USER ENTITLEMENTS
+-- ============================================================
+
+CREATE TABLE entitlements (
+    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    listing_id UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+    version_id UUID REFERENCES listing_versions(id) ON DELETE SET NULL,
+    purchase_id UUID REFERENCES purchases(id) ON DELETE SET NULL,
+    source     VARCHAR(32) NOT NULL DEFAULT 'purchase',
+    granted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    revoked_at TIMESTAMPTZ
+);
+
+CREATE INDEX entitlements_user_listing_idx ON entitlements (user_id, listing_id);
+CREATE INDEX entitlements_purchase_idx ON entitlements (purchase_id);
+
+-- ============================================================
 -- CURATION: COLLECTIONS
 -- ============================================================
 
@@ -383,6 +477,14 @@ CREATE TRIGGER listings_updated_at
 
 CREATE TRIGGER reviews_updated_at
     BEFORE UPDATE ON reviews
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER payment_intents_updated_at
+    BEFORE UPDATE ON payment_intents
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER listing_payment_config_updated_at
+    BEFORE UPDATE ON listing_payment_config
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ============================================================

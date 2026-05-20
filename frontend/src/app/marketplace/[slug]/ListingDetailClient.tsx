@@ -1,10 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { Download, Star, ChevronDown } from "lucide-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { Download, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { TYPE_META, type Listing } from "@/components/marketplace/ListingCard";
+import { Panel } from "@/components/ui/Panel";
+import { Button } from "@/components/ui/Button";
+import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
+import { sendSolPayment } from "@/lib/solana/sendPayment";
 
 interface Version {
   id: string;
@@ -26,7 +32,23 @@ interface Review {
   created_at: string;
 }
 
+interface PurchaseOut {
+  id: string;
+  status: string;
+  seller_wallet_address: string | null;
+  amount_lamports: number | null;
+}
+
+type PurchaseState = "idle" | "initiating" | "sending" | "confirming" | "done" | "error";
+
 export function ListingDetailClient({ slug }: { slug: string }) {
+  const { connection } = useConnection();
+  const wallet = useWallet();
+  const { token } = useAuthStore();
+
+  const [purchaseState, setPurchaseState] = useState<PurchaseState>("idle");
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", slug],
     queryFn: async () => (await api.get(`/listings/${slug}`)).data as Listing,
@@ -44,183 +66,220 @@ export function ListingDetailClient({ slug }: { slug: string }) {
     enabled: !!listing,
   });
 
+  const handleAction = async () => {
+    if (!listing) return;
+    setPurchaseError(null);
+
+    if (!token) {
+      setPurchaseError("Connect your wallet to continue.");
+      return;
+    }
+
+    const isFree = parseFloat(listing.price_sol) === 0;
+
+    try {
+      // Step 1: Initiate purchase on backend.
+      setPurchaseState("initiating");
+      const { data: purchase } = await api.post<PurchaseOut>(
+        `/listings/${listing.slug}/purchase`
+      );
+
+      if (isFree || purchase.status === "confirmed") {
+        // Free listing — backend confirmed it immediately.
+        setPurchaseState("done");
+        return;
+      }
+
+      // Step 2: Send SOL on-chain.
+      const sellerWallet = purchase.seller_wallet_address;
+      const lamports = purchase.amount_lamports;
+
+      if (!sellerWallet || !lamports) {
+        throw new Error("Missing payment details from server");
+      }
+
+      if (!wallet.connected || !wallet.publicKey) {
+        throw new Error("Wallet disconnected before payment");
+      }
+
+      setPurchaseState("sending");
+      const txSignature = await sendSolPayment(connection, wallet, sellerWallet, lamports);
+
+      // Step 3: Submit signature to backend for on-chain verification.
+      setPurchaseState("confirming");
+      await api.post(`/purchases/${purchase.id}/confirm`, { tx_signature: txSignature });
+
+      setPurchaseState("done");
+    } catch (err: unknown) {
+      setPurchaseState("error");
+      if (err instanceof Error) {
+        setPurchaseError(err.message);
+      } else {
+        setPurchaseError("Something went wrong. Please try again.");
+      }
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="space-y-4 pt-4">
-        <div className="skeleton h-12 w-2/3 rounded-xl" />
-        <div className="skeleton h-6 w-full rounded-lg" />
-        <div className="skeleton h-48 rounded-2xl" />
+      <div className="space-y-4">
+        <div className="skeleton h-24 rounded-2xl" />
+        <div className="skeleton h-56 rounded-2xl" />
+        <div className="skeleton h-44 rounded-2xl" />
       </div>
     );
   }
-  if (!listing) return <p className="pt-8 text-muted-foreground">Listing not found.</p>;
+
+  if (!listing) {
+    return <p className="py-10 text-sm text-text-secondary">Listing not found.</p>;
+  }
 
   const meta = TYPE_META[listing.type];
-  const Icon = meta.icon;
-  const latest = versions?.find((v) => v.is_latest);
+  const latest = versions?.find((version) => version.is_latest);
   const isFree = parseFloat(listing.price_sol) === 0;
 
+  const actionLabel = (() => {
+    if (purchaseState === "initiating") return "Preparing…";
+    if (purchaseState === "sending") return "Approve in wallet…";
+    if (purchaseState === "confirming") return "Confirming…";
+    if (purchaseState === "done") return isFree ? "Installed" : "Purchased";
+    return isFree ? "Install" : "Purchase";
+  })();
+
+  const isActionDisabled =
+    purchaseState === "initiating" ||
+    purchaseState === "sending" ||
+    purchaseState === "confirming" ||
+    purchaseState === "done";
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <div
-          className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl"
-          style={{ background: meta.bg, border: `1px solid ${meta.border}` }}
-        >
-          <Icon className="h-8 w-8" style={{ color: meta.color }} />
-        </div>
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }} className="space-y-6">
+      <Panel padding="lg">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-muted px-3 py-1.5 text-xs">
+              <meta.icon className={`h-3.5 w-3.5 ${meta.colorClass}`} />
+              <span className="text-text-secondary">{meta.label}</span>
+            </div>
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span
-              className="rounded-md px-2 py-0.5 text-xs font-medium"
-              style={{ background: meta.bg, color: meta.color }}
-            >
-              {meta.label}
-            </span>
-            {listing.avg_rating && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                {parseFloat(listing.avg_rating).toFixed(1)}
+            <h1 className="font-display text-4xl font-bold tracking-tight text-text-primary">{listing.title}</h1>
+            <p className="mt-3 max-w-2xl text-text-secondary">{listing.description ?? "No short description provided."}</p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-text-secondary">
+              <span className="inline-flex items-center gap-1.5">
+                <Download className="h-4 w-4" />
+                {listing.download_count.toLocaleString()} installs
               </span>
-            )}
+              {listing.avg_rating ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  {parseFloat(listing.avg_rating).toFixed(1)} rating
+                </span>
+              ) : null}
+              {latest ? <span className="font-mono text-xs text-text-muted">v{latest.version}</span> : null}
+            </div>
           </div>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">{listing.title}</h1>
-          {listing.description && (
-            <p className="mt-2 text-muted-foreground">{listing.description}</p>
-          )}
-          <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Download className="h-4 w-4" />
-              {listing.download_count.toLocaleString()} installs
-            </span>
-            {latest && (
-              <span className="font-mono text-xs">v{latest.version}</span>
-            )}
-          </div>
-        </div>
 
-        {/* CTA */}
-        <div className="flex-shrink-0 text-right">
-          <div
-            className="mb-3 font-mono text-2xl font-bold"
-            style={{ color: isFree ? "hsl(var(--muted-foreground))" : meta.color }}
-          >
-            {isFree ? "Free" : `◎ ${parseFloat(listing.price_sol).toFixed(3)}`}
-          </div>
-          <button
-            className="w-full rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
-            style={{
-              background: meta.color,
-              color: "hsl(var(--background))",
-              boxShadow: `0 0 20px color-mix(in srgb, ${meta.color} 40%, transparent)`,
-            }}
-          >
-            {isFree ? "Install" : "Purchase"}
-          </button>
-        </div>
-      </div>
-
-      {/* Tags */}
-      {listing.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {listing.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="rounded-lg border border-border bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+          <Panel tone="muted" padding="md" className="min-w-56">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">Price</p>
+            <p className={`mt-1 font-mono text-2xl font-semibold ${meta.colorClass}`}>
+              {isFree ? "Free" : `SOL ${parseFloat(listing.price_sol).toFixed(3)}`}
+            </p>
+            <Button
+              className="mt-4 w-full"
+              onClick={handleAction}
+              disabled={isActionDisabled}
             >
-              #{tag.name}
-            </span>
-          ))}
+              {actionLabel}
+            </Button>
+            {purchaseError ? (
+              <p className="mt-2 text-xs text-red-400">{purchaseError}</p>
+            ) : null}
+            {purchaseState === "done" ? (
+              <p className="mt-2 text-xs text-green-400">
+                {isFree ? "Successfully installed!" : "Payment confirmed on-chain."}
+              </p>
+            ) : null}
+          </Panel>
         </div>
-      )}
 
-      {/* Install instructions */}
-      {latest?.install_instructions && (
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Installation</h2>
-          <pre className="overflow-x-auto rounded-xl border border-border bg-muted p-5 font-mono text-xs leading-relaxed text-foreground/90 whitespace-pre-wrap">
+        {listing.tags.length > 0 ? (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {listing.tags.map((tag) => (
+              <span key={tag.id} className="rounded-lg border border-border-subtle bg-surface-muted px-2.5 py-1 text-xs text-text-secondary">
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </Panel>
+
+      {latest?.install_instructions ? (
+        <Panel padding="lg">
+          <h2 className="font-display text-2xl font-bold text-text-primary">Installation</h2>
+          <pre className="mt-4 overflow-x-auto rounded-xl border border-border-subtle bg-surface-muted p-5 font-mono text-xs leading-relaxed text-text-secondary whitespace-pre-wrap">
             {latest.install_instructions}
           </pre>
-        </section>
-      )}
+        </Panel>
+      ) : null}
 
-      {/* Versions */}
-      {versions && versions.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Version History</h2>
-          <div className="space-y-2">
-            {versions.map((v) => (
-              <div
-                key={v.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm font-semibold">v{v.version}</span>
-                  {v.is_latest && (
-                    <span
-                      className="rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-                      style={{ background: meta.bg, color: meta.color }}
-                    >
+      {versions && versions.length > 0 ? (
+        <Panel padding="lg">
+          <h2 className="font-display text-2xl font-bold text-text-primary">Version timeline</h2>
+          <div className="mt-4 space-y-2.5">
+            {versions.map((version) => (
+              <div key={version.id} className="flex items-start justify-between gap-4 rounded-xl border border-border-subtle bg-surface-muted px-4 py-3">
+                <div>
+                  <p className="font-mono text-sm text-text-primary">v{version.version}</p>
+                  <p className="mt-1 text-xs text-text-secondary">{version.changelog ?? "No changelog message."}</p>
+                </div>
+                <div className="text-right">
+                  {version.is_latest ? (
+                    <span className="rounded-md border border-action-primary/30 bg-action-primary/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-action-primary">
                       latest
                     </span>
-                  )}
-                  {v.changelog && (
-                    <p className="text-xs text-muted-foreground line-clamp-1">{v.changelog}</p>
-                  )}
+                  ) : null}
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-text-muted">
+                    {new Date(version.created_at).toLocaleDateString()}
+                  </p>
                 </div>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {new Date(v.created_at).toLocaleDateString()}
-                </span>
               </div>
             ))}
           </div>
-        </section>
-      )}
+        </Panel>
+      ) : null}
 
-      {/* Reviews */}
-      <section>
-        <h2 className="mb-4 text-lg font-semibold">
-          Reviews{" "}
-          <span className="font-mono text-sm text-muted-foreground">({reviews?.length ?? 0})</span>
-        </h2>
+      <Panel padding="lg">
+        <h2 className="font-display text-2xl font-bold text-text-primary">Reviews ({reviews?.length ?? 0})</h2>
+
         {reviews && reviews.length > 0 ? (
-          <div className="space-y-3">
-            {reviews.map((r) => (
-              <div
-                key={r.id}
-                className="rounded-xl border border-border bg-card p-4"
-              >
+          <div className="mt-4 space-y-3">
+            {reviews.map((review) => (
+              <article key={review.id} className="rounded-xl border border-border-subtle bg-surface-muted px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, index) => (
                       <Star
-                        key={i}
-                        className={`h-3.5 w-3.5 ${i < r.rating ? "fill-amber-400 text-amber-400" : "text-muted"}`}
+                        key={index}
+                        className={`h-3.5 w-3.5 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-text-muted"}`}
                       />
                     ))}
                   </div>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(r.created_at).toLocaleDateString()}
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-muted">
+                    {new Date(review.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                {r.title && <p className="mt-2 text-sm font-medium">{r.title}</p>}
-                {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
-              </div>
+                {review.title ? <p className="mt-2 text-sm font-semibold text-text-primary">{review.title}</p> : null}
+                {review.body ? <p className="mt-1 text-sm text-text-secondary">{review.body}</p> : null}
+              </article>
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-muted/30 py-12 text-center">
-            <p className="text-sm text-muted-foreground">No reviews yet — be the first to review.</p>
-          </div>
+          <p className="mt-4 rounded-xl border border-border-subtle bg-surface-muted px-4 py-8 text-center text-sm text-text-secondary">
+            No reviews yet. Be the first to leave one.
+          </p>
         )}
-      </section>
+      </Panel>
     </motion.div>
   );
 }

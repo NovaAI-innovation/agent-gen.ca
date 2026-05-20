@@ -3,39 +3,32 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Bot, Download, Package, Server, Star, Zap } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 export const TYPE_META = {
   mcp_server: {
     icon: Server,
     label: "MCP Server",
-    color: "hsl(var(--accent-mcp))",
-    glow: "glow-mcp",
-    bg: "hsl(183 100% 50% / 0.07)",
-    border: "hsl(183 100% 50% / 0.18)",
+    colorClass: "text-cyan-300",
+    chipClass: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
   },
   agent_skill: {
     icon: Zap,
     label: "Agent Skill",
-    color: "hsl(var(--accent-skill))",
-    glow: "glow-skill",
-    bg: "hsl(38 95% 55% / 0.07)",
-    border: "hsl(38 95% 55% / 0.18)",
+    colorClass: "text-amber-300",
+    chipClass: "border-amber-400/30 bg-amber-400/10 text-amber-200",
   },
   custom_agent: {
     icon: Bot,
     label: "Custom Agent",
-    color: "hsl(var(--accent-agent))",
-    glow: "glow-agent",
-    bg: "hsl(142 75% 50% / 0.07)",
-    border: "hsl(142 75% 50% / 0.18)",
+    colorClass: "text-lime-300",
+    chipClass: "border-lime-400/30 bg-lime-400/10 text-lime-200",
   },
   pack: {
     icon: Package,
     label: "Pack",
-    color: "hsl(var(--accent-pack))",
-    glow: "glow-pack",
-    bg: "hsl(270 85% 65% / 0.07)",
-    border: "hsl(270 85% 65% / 0.18)",
+    colorClass: "text-violet-300",
+    chipClass: "border-violet-400/30 bg-violet-400/10 text-violet-200",
   },
 } as const;
 
@@ -52,68 +45,66 @@ export interface Listing {
   tags: { id: number; name: string }[];
 }
 
+export interface ListingMetaViewModel {
+  displayPrice: string;
+  installCount: string;
+  rating?: string;
+}
+
+function getListingViewModel(listing: Listing): ListingMetaViewModel {
+  const isFree = parseFloat(listing.price_sol) === 0;
+
+  return {
+    displayPrice: isFree ? "Free" : `SOL ${parseFloat(listing.price_sol).toFixed(3)}`,
+    installCount: listing.download_count.toLocaleString(),
+    rating: listing.avg_rating ? parseFloat(listing.avg_rating).toFixed(1) : undefined,
+  };
+}
+
 export function ListingCard({ listing }: { listing: Listing }) {
   const meta = TYPE_META[listing.type];
   const Icon = meta.icon;
-  const isFree = parseFloat(listing.price_sol) === 0;
+  const model = getListingViewModel(listing);
 
   return (
-    <motion.div whileHover={{ y: -3, scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.18 }}>
       <Link
         href={`/marketplace/${listing.slug}`}
-        className={`group relative flex flex-col gap-3 rounded-2xl border p-5 transition-shadow duration-300 hover:${meta.glow}`}
-        style={{ background: "hsl(var(--card))", borderColor: "hsl(var(--border))" }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.borderColor = meta.border;
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.borderColor = "hsl(var(--border))";
-        }}
+        className="group flex h-full flex-col rounded-2xl border border-border-subtle bg-surface-elevated/85 p-5 transition-all duration-200 hover:border-border-focus hover:bg-surface-hover"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium" style={{ background: meta.bg, color: meta.color }}>
-            <Icon className="h-3 w-3" />
+        <div className="flex items-center justify-between gap-3">
+          <span className={cn("inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium", meta.chipClass)}>
+            <Icon className="h-3.5 w-3.5" />
             {meta.label}
-          </div>
-          <span className="font-mono text-sm font-bold" style={{ color: isFree ? "hsl(var(--muted-foreground))" : meta.color }}>
-            {isFree ? "Free" : `SOL ${parseFloat(listing.price_sol).toFixed(3)}`}
           </span>
+          <span className={cn("font-mono text-sm font-semibold", meta.colorClass)}>{model.displayPrice}</span>
         </div>
 
-        <div>
-          <h3 className="line-clamp-1 font-semibold leading-snug transition-colors duration-200" style={{ color: "hsl(var(--foreground))" }}>
-            {listing.title}
-          </h3>
-          {listing.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>}
+        <div className="mt-3">
+          <h3 className="line-clamp-1 text-lg font-semibold text-text-primary">{listing.title}</h3>
+          <p className="mt-1 line-clamp-2 text-sm text-text-secondary">{listing.description ?? "No description provided yet."}</p>
         </div>
 
-        <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Download className="h-3 w-3" />
-            {listing.download_count.toLocaleString()}
+        <div className="mt-5 flex items-center justify-between text-xs text-text-muted">
+          <span className="flex items-center gap-1.5">
+            <Download className="h-3.5 w-3.5" />
+            {model.installCount}
           </span>
-          {listing.avg_rating && (
-            <span className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              {parseFloat(listing.avg_rating).toFixed(1)}
+          {model.rating ? (
+            <span className="flex items-center gap-1.5">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              {model.rating}
             </span>
-          )}
+          ) : null}
         </div>
 
-        {listing.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {listing.tags.slice(0, 3).map((tag) => (
-              <span key={tag.id} className="rounded-md bg-white/5 px-2 py-0.5 text-[11px] text-muted-foreground">
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div
-          className="absolute right-3.5 top-3.5 h-1.5 w-1.5 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-          style={{ background: meta.color }}
-        />
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {listing.tags.slice(0, 3).map((tag) => (
+            <span key={tag.id} className="rounded-md border border-border-subtle bg-surface-muted px-2 py-0.5 text-[11px] text-text-muted">
+              #{tag.name}
+            </span>
+          ))}
+        </div>
       </Link>
     </motion.div>
   );

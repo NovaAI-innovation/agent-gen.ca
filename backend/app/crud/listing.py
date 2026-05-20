@@ -86,7 +86,27 @@ async def get_listing_by_slug(db: AsyncSession, slug: str) -> Optional[Listing]:
     return result.scalar_one_or_none()
 
 
-async def create_listing(db: AsyncSession, owner_id: UUID, data: ListingCreate) -> Listing:
+async def get_listings_by_owner(
+    db: AsyncSession,
+    *,
+    owner_id: UUID,
+    include_unpublished: bool = False,
+) -> list[Listing]:
+    query = _listing_query().where(Listing.owner_id == owner_id)
+    if not include_unpublished:
+        query = query.where(Listing.is_published == True)
+
+    result = await db.execute(query.order_by(Listing.created_at.desc()))
+    return result.scalars().all()
+
+
+async def create_listing(
+    db: AsyncSession,
+    owner_id: UUID,
+    data: ListingCreate,
+    *,
+    is_published: bool = True,
+) -> Listing:
     slug = await _unique_slug(db, _slugify(data.title))
     listing = Listing(
         type=data.type,
@@ -96,6 +116,7 @@ async def create_listing(db: AsyncSession, owner_id: UUID, data: ListingCreate) 
         long_description=data.long_description,
         price_sol=data.price_sol,
         owner_id=owner_id,
+        is_published=is_published,
     )
     if data.tag_ids:
         tags = (await db.execute(select(Tag).where(Tag.id.in_(data.tag_ids)))).scalars().all()

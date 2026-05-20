@@ -1,10 +1,10 @@
 import sqlalchemy
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.deps import get_current_user
+from ..core.deps import AuthContext, get_current_user, get_optional_auth_context
 from ..crud.user import get_user_by_wallet, update_user
-from ..crud.listing import get_listings
+from ..crud.listing import get_listings_by_owner
 from ..db.database import get_db
 from ..models.user import User
 from ..schemas.user import UserPublic, UserUpdate
@@ -36,12 +36,23 @@ async def get_user_profile(wallet: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{wallet}/listings", response_model=list[ListingOut])
-async def get_user_listings(wallet: str, db: AsyncSession = Depends(get_db)):
+async def get_user_listings(
+    wallet: str,
+    include_drafts: bool = Query(False),
+    auth: AuthContext | None = Depends(get_optional_auth_context),
+    db: AsyncSession = Depends(get_db),
+):
     user = await get_user_by_wallet(db, wallet)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    listings, _ = await get_listings(db, page_size=100)
-    return [l for l in listings if l.owner_id == user.id]
+    include_unpublished = bool(
+        include_drafts and auth is not None and auth.user.id == user.id
+    )
+    return await get_listings_by_owner(
+        db,
+        owner_id=user.id,
+        include_unpublished=include_unpublished,
+    )
 
 
 @router.post("/{wallet}/follow", status_code=204)

@@ -16,6 +16,7 @@ from sqlalchemy.future import select
 
 from ..core.config import settings
 from ..core.deps import AuthContext, get_current_auth_context
+from ..core.rate_limit import limiter
 from ..core.security import (
     create_access_token,
     create_refresh_token,
@@ -32,8 +33,28 @@ from ..schemas.user import Token
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _build_signin_message(wallet: str, nonce: str) -> str:
-    return f"Sign in to agent-gen.ca\n\nWallet: {wallet}\nNonce: {nonce}"
+def _iso_z(dt: datetime) -> str:
+    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _build_signin_message(
+    *,
+    wallet: str,
+    nonce: str,
+    issued_at: datetime,
+    expires_at: datetime,
+) -> str:
+    return (
+        f"{settings.AUTH_DOMAIN} wants you to sign in with your Solana account:\n"
+        f"{wallet}\n\n"
+        f"{settings.AUTH_STATEMENT}\n\n"
+        f"URI: {settings.AUTH_URI}\n"
+        "Version: 1\n"
+        f"Chain ID: {settings.AUTH_CHAIN_ID}\n"
+        f"Nonce: {nonce}\n"
+        f"Issued At: {_iso_z(issued_at)}\n"
+        f"Expiration Time: {_iso_z(expires_at)}"
+    )
 
 
 def _wallet_public_key_bytes(wallet: str) -> bytes:
@@ -62,6 +83,7 @@ def _set_refresh_cookie(response: Response, refresh_token: str, expires_at: date
         secure=settings.REFRESH_COOKIE_SECURE,
         samesite=settings.REFRESH_COOKIE_SAMESITE,
         max_age=max_age,
+        domain=settings.REFRESH_COOKIE_DOMAIN,
         path="/",
     )
 
@@ -69,6 +91,7 @@ def _set_refresh_cookie(response: Response, refresh_token: str, expires_at: date
 def _clear_refresh_cookie(response: Response) -> None:
     response.delete_cookie(
         key=settings.REFRESH_COOKIE_NAME,
+        domain=settings.REFRESH_COOKIE_DOMAIN,
         path="/",
         samesite=settings.REFRESH_COOKIE_SAMESITE,
     )
@@ -121,6 +144,10 @@ async def _enforce_session_limit(db: AsyncSession, user_id: UUID) -> None:
 class ChallengeResponse(BaseModel):
     challenge_id: UUID
     nonce: str
+    domain: str
+    uri: str
+    chain_id: str
+    issued_at: datetime
     expires_at: datetime
     message: str
 
@@ -132,31 +159,48 @@ class VerifyRequest(BaseModel):
     signature: str
 
 
-class RefreshRequest(BaseModel):
-    wallet: str
-
-
+@limiter.limit(settings.AUTH_RATE_LIMIT_CHALLENGE)
 @router.get("/challenge", response_model=ChallengeResponse)
-async def get_challenge(wallet: str, db: AsyncSession = Depends(get_db)):
+async def get_challenge(request: Request, wallet: str, db: AsyncSession = Depends(get_db)):
     """Issue a one-time nonce for the wallet to sign with Phantom."""
     _wallet_public_key_bytes(wallet)
 
+    issued_at = datetime.now(timezone.utc)
     nonce = secrets.token_hex(32)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.NONCE_EXPIRE_MINUTES)
-    message = _build_signin_message(wallet, nonce)
+    expires_at = issued_at + timedelta(minutes=settings.NONCE_EXPIRE_MINUTES)
+    message = _build_signin_message(
+        wallet=wallet,
+        nonce=nonce,
+        issued_at=issued_at,
+        expires_at=expires_at,
+    )
 
-    record = AuthNonce(wallet_address=wallet, nonce=nonce, expires_at=expires_at)
+    record = AuthNonce(
+        wallet_address=wallet,
+        nonce=nonce,
+        message=message,
+        domain=settings.AUTH_DOMAIN,
+        uri=settings.AUTH_URI,
+        chain_id=settings.AUTH_CHAIN_ID,
+        issued_at=issued_at,
+        expires_at=expires_at,
+    )
     db.add(record)
     await db.flush()
 
     return ChallengeResponse(
         challenge_id=record.id,
         nonce=nonce,
+        domain=record.domain,
+        uri=record.uri,
+        chain_id=record.chain_id,
+        issued_at=record.issued_at,
         expires_at=expires_at,
         message=message,
     )
 
 
+@limiter.limit(settings.AUTH_RATE_LIMIT_VERIFY)
 @router.post("/verify", response_model=Token)
 async def verify_signature(body: VerifyRequest, response: Response, request: Request, db: AsyncSession = Depends(get_db)):
     """Verify ed25519 Phantom signature and issue session-bound JWTs."""
@@ -185,7 +229,7 @@ async def verify_signature(body: VerifyRequest, response: Response, request: Req
         await db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired challenge")
 
-    message = _build_signin_message(body.wallet, nonce_record.nonce)
+    message = nonce_record.message
 
     try:
         sig_bytes = base64.b64decode(body.signature)
@@ -262,9 +306,9 @@ async def verify_signature(body: VerifyRequest, response: Response, request: Req
     )
 
 
+@limiter.limit(settings.AUTH_RATE_LIMIT_REFRESH)
 @router.post("/refresh", response_model=Token)
 async def refresh_session(
-    body: RefreshRequest,
     response: Response,
     request: Request,
     db: AsyncSession = Depends(get_db),
@@ -287,9 +331,6 @@ async def refresh_session(
         session_id = UUID(session_id_raw)
     except (JWTError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-
-    if body.wallet != wallet:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wallet mismatch")
 
     result = await db.execute(select(AuthSession).where(AuthSession.id == session_id))
     session = result.scalar_one_or_none()

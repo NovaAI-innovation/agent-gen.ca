@@ -20,7 +20,13 @@ services:
       target: prod
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: /api
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+      NEXT_PUBLIC_SOLANA_CLUSTER: ${NEXT_PUBLIC_SOLANA_CLUSTER:-mainnet-beta}
+      NEXT_PUBLIC_SOLANA_RPC_HTTP: ${NEXT_PUBLIC_SOLANA_RPC_HTTP:-https://api.mainnet-beta.solana.com}
+      NEXT_PUBLIC_SOLANA_RPC_WS: ${NEXT_PUBLIC_SOLANA_RPC_WS:-wss://api.mainnet-beta.solana.com}
+      NEXT_PUBLIC_SOLANA_RPC_FALLBACK: ${NEXT_PUBLIC_SOLANA_RPC_FALLBACK:-}
+      NEXT_PUBLIC_USDC_MINT: ${NEXT_PUBLIC_USDC_MINT:-EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v}
+      NEXT_PUBLIC_PLATFORM_FEE_BPS: ${NEXT_PUBLIC_PLATFORM_FEE_BPS:-250}
     expose:
       - '3000'
     healthcheck:
@@ -37,9 +43,24 @@ services:
       target: prod
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+asyncpg://agentgen:${POSTGRES_PASSWORD}@db:5432/agentgen
-      SECRET_KEY: ${SECRET_KEY}
-      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-agentgen}:${POSTGRES_PASSWORD:-agentgen-prod-local}@db:5432/${POSTGRES_DB:-agentgen}
+      SECRET_KEY: ${SECRET_KEY:-agentgen-prod-local-secret-change-me}
+      REDIS_URL: ${REDIS_URL:-redis://localhost:6379}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost}
+      REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-true}
+      REFRESH_COOKIE_SAMESITE: ${REFRESH_COOKIE_SAMESITE:-strict}
+      JWT_ISSUER: ${JWT_ISSUER:-agent-gen.ca}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-agent-gen.ca-web}
+      ENFORCE_ALEMBIC_VERSION: ${ENFORCE_ALEMBIC_VERSION:-true}
+      SOLANA_CLUSTER: ${SOLANA_CLUSTER:-mainnet-beta}
+      SOLANA_RPC_HTTP: ${SOLANA_RPC_HTTP:-https://api.mainnet-beta.solana.com}
+      SOLANA_RPC_WS: ${SOLANA_RPC_WS:-wss://api.mainnet-beta.solana.com}
+      SOLANA_RPC_FALLBACK: ${SOLANA_RPC_FALLBACK:-}
+      USDC_MINT: ${USDC_MINT:-EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v}
+      PLATFORM_FEE_BPS: ${PLATFORM_FEE_BPS:-250}
+      AUTH_DOMAIN: ${AUTH_DOMAIN:-agent-gen.ca}
+      AUTH_URI: ${AUTH_URI:-https://agent-gen.ca}
+      AUTH_CHAIN_ID: ${AUTH_CHAIN_ID:-solana:mainnet}
     expose:
       - '8000'
     healthcheck:
@@ -60,9 +81,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: agentgen
-      POSTGRES_USER: agentgen
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-agentgen}
+      POSTGRES_USER: ${POSTGRES_USER:-agentgen}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agentgen-prod-local}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./dockerfiles/init-scripts:/docker-entrypoint-initdb.d

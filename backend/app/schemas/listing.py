@@ -18,6 +18,14 @@ class ListingVersionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ListingInstallOut(BaseModel):
+    listing_id: UUID
+    slug: str
+    version_id: UUID
+    download_count: int
+    installed_at: datetime
+
+
 class TagOut(BaseModel):
     id: int
     name: str

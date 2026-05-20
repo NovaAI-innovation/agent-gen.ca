@@ -1,23 +1,37 @@
+from datetime import datetime, timezone
 from typing import Optional
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+import sqlalchemy
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
-from ..core.deps import get_current_user
+from ..core.deps import AuthContext, get_current_user, get_optional_auth_context
+from ..core.security import hash_request_value
 from ..crud.listing import (
     get_listings, get_listing_by_slug, create_listing,
     update_listing, create_listing_version, get_listing_versions,
 )
 from ..db.database import get_db
-from ..models.listing import ListingType
+from ..models.listing import ListingType, ListingVersion, Listing
 from ..models.user import User
 from ..schemas.listing import (
     ListingOut, ListingCreate, ListingUpdate,
-    ListingVersionOut, ListingVersionCreate,
+    ListingVersionOut, ListingVersionCreate, ListingInstallOut,
 )
 
 router = APIRouter(prefix="/listings", tags=["listings"])
+
+
+def _client_ip_hash(request: Request) -> str | None:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    client_ip = (
+        forwarded_for.split(",")[0].strip()
+        if forwarded_for
+        else (request.client.host if request.client else None)
+    )
+    return hash_request_value(client_ip)
 
 
 @router.get("", response_model=dict)
@@ -44,7 +58,7 @@ async def create(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    listing = await create_listing(db, current_user.id, data)
+    listing = await create_listing(db, current_user.id, data, is_published=True)
     await db.commit()
     return listing
 
@@ -114,6 +128,83 @@ async def publish_version(
     return version
 
 
+@router.post("/{slug}/install", response_model=ListingInstallOut, status_code=201)
+async def install_listing(
+    slug: str,
+    request: Request,
+    auth: AuthContext | None = Depends(get_optional_auth_context),
+    db: AsyncSession = Depends(get_db),
+):
+    listing = await get_listing_by_slug(db, slug)
+    if not listing or not listing.is_published:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    version_result = await db.execute(
+        select(ListingVersion).where(
+            ListingVersion.listing_id == listing.id,
+            ListingVersion.is_latest == True,
+        )
+    )
+    latest_version = version_result.scalar_one_or_none()
+    if latest_version is None:
+        raise HTTPException(
+            status_code=409,
+            detail="No installable listing version available",
+        )
+
+    installed_at = datetime.now(timezone.utc)
+    ip_hash = _client_ip_hash(request)
+    user_id = str(auth.user.id) if auth is not None else None
+
+    await db.execute(
+        sqlalchemy.text(
+            """
+            INSERT INTO downloads (listing_id, version_id, user_id, ip_hash, created_at)
+            VALUES (:listing_id, :version_id, :user_id, :ip_hash, :created_at)
+            """
+        ),
+        {
+            "listing_id": str(listing.id),
+            "version_id": str(latest_version.id),
+            "user_id": user_id,
+            "ip_hash": ip_hash,
+            "created_at": installed_at,
+        },
+    )
+
+    if auth is not None:
+        await db.execute(
+            sqlalchemy.text(
+                """
+                INSERT INTO install_history (user_id, listing_id, version_id, installed_at)
+                VALUES (:user_id, :listing_id, :version_id, :installed_at)
+                """
+            ),
+            {
+                "user_id": str(auth.user.id),
+                "listing_id": str(listing.id),
+                "version_id": str(latest_version.id),
+                "installed_at": installed_at,
+            },
+        )
+
+    await db.execute(
+        update(Listing)
+        .where(Listing.id == listing.id)
+        .values(download_count=Listing.download_count + 1)
+    )
+    await db.commit()
+    await db.refresh(listing)
+
+    return ListingInstallOut(
+        listing_id=listing.id,
+        slug=listing.slug,
+        version_id=latest_version.id,
+        download_count=listing.download_count,
+        installed_at=installed_at,
+    )
+
+
 @router.post("/{slug}/save", status_code=204)
 async def save_listing(
     slug: str,
@@ -123,7 +214,6 @@ async def save_listing(
     listing = await get_listing_by_slug(db, slug)
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
-    import sqlalchemy
     await db.execute(
         sqlalchemy.text(
             "INSERT INTO user_saves (user_id, listing_id) VALUES (:u, :l) ON CONFLICT DO NOTHING"
@@ -142,7 +232,6 @@ async def unsave_listing(
     listing = await get_listing_by_slug(db, slug)
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
-    import sqlalchemy
     await db.execute(
         sqlalchemy.text("DELETE FROM user_saves WHERE user_id = :u AND listing_id = :l"),
         {"u": str(current_user.id), "l": str(listing.id)},

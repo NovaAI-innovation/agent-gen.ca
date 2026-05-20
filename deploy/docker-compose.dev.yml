@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: agentgen
-      POSTGRES_USER: agentgen
-      POSTGRES_PASSWORD: agentgen123
+      POSTGRES_DB: ${POSTGRES_DB:-agentgen}
+      POSTGRES_USER: ${POSTGRES_USER:-agentgen}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agentgen123}
     ports:
       - '5432:5432'
     volumes:
@@ -23,8 +21,8 @@ services:
     image: dpage/pgadmin4:8
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@agent-gen.ca
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@agent-gen.ca}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
     ports:
       - '8080:80'
     depends_on:
@@ -40,8 +38,24 @@ services:
       target: dev
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+asyncpg://agentgen:agentgen123@db:5432/agentgen
-      SECRET_KEY: dev-secret-key-change-in-prod
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-agentgen}:${POSTGRES_PASSWORD:-agentgen123}@db:5432/${POSTGRES_DB:-agentgen}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-prod}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      REDIS_URL: ${REDIS_URL:-redis://localhost:6379}
+      REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-false}
+      REFRESH_COOKIE_SAMESITE: ${REFRESH_COOKIE_SAMESITE:-lax}
+      JWT_ISSUER: ${JWT_ISSUER:-agent-gen.ca}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-agent-gen.ca-web}
+      ENFORCE_ALEMBIC_VERSION: ${ENFORCE_ALEMBIC_VERSION:-false}
+      SOLANA_CLUSTER: ${SOLANA_CLUSTER:-devnet}
+      SOLANA_RPC_HTTP: ${SOLANA_RPC_HTTP:-https://api.devnet.solana.com}
+      SOLANA_RPC_WS: ${SOLANA_RPC_WS:-wss://api.devnet.solana.com}
+      SOLANA_RPC_FALLBACK: ${SOLANA_RPC_FALLBACK:-}
+      USDC_MINT: ${USDC_MINT:-EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v}
+      PLATFORM_FEE_BPS: ${PLATFORM_FEE_BPS:-250}
+      AUTH_DOMAIN: ${AUTH_DOMAIN:-localhost:3000}
+      AUTH_URI: ${AUTH_URI:-http://localhost:3000}
+      AUTH_CHAIN_ID: ${AUTH_CHAIN_ID:-solana:devnet}
     ports:
       - '8000:8000'
     volumes:
@@ -69,7 +83,13 @@ services:
     ports:
       - '3000:3000'
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_SOLANA_CLUSTER: ${NEXT_PUBLIC_SOLANA_CLUSTER:-devnet}
+      NEXT_PUBLIC_SOLANA_RPC_HTTP: ${NEXT_PUBLIC_SOLANA_RPC_HTTP:-https://api.devnet.solana.com}
+      NEXT_PUBLIC_SOLANA_RPC_WS: ${NEXT_PUBLIC_SOLANA_RPC_WS:-wss://api.devnet.solana.com}
+      NEXT_PUBLIC_SOLANA_RPC_FALLBACK: ${NEXT_PUBLIC_SOLANA_RPC_FALLBACK:-}
+      NEXT_PUBLIC_USDC_MINT: ${NEXT_PUBLIC_USDC_MINT:-EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v}
+      NEXT_PUBLIC_PLATFORM_FEE_BPS: ${NEXT_PUBLIC_PLATFORM_FEE_BPS:-250}
     volumes:
       - ../frontend:/app
       - frontend_node_modules:/app/node_modules

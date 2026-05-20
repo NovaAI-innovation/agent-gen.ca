@@ -7,9 +7,12 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { ListingCard, type Listing } from "./ListingCard";
 import { ListingFilters, type Filters } from "./ListingFilters";
+import { Panel } from "@/components/ui/Panel";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 function SkeletonCard() {
-  return <div className="skeleton h-52 rounded-2xl" />;
+  return <div className="skeleton h-56 rounded-2xl" />;
 }
 
 export function ListingGrid({ defaultType }: { defaultType?: string }) {
@@ -40,47 +43,38 @@ export function ListingGrid({ defaultType }: { defaultType?: string }) {
   const totalPages = data ? Math.ceil(data.total / data.page_size) : 1;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-white/10 bg-card/55 p-4 backdrop-blur-sm sm:p-5">
+    <div className="space-y-5">
+      <Panel padding="md">
         <ListingFilters filters={filters} onChange={setFilters} />
-      </div>
+      </Panel>
 
-      <div className="flex min-h-6 items-center gap-2">
-        <span className="font-mono text-xs text-muted-foreground">
-          {isLoading ? "Loading results..." : `${data?.total ?? 0} results`}
+      <div className="flex items-center gap-2">
+        <span className="font-mono text-xs uppercase tracking-[0.16em] text-text-muted">
+          {isLoading ? "Querying listings" : `${data?.total ?? 0} results`}
         </span>
-        {filters.q && (
-          <span className="font-mono text-xs" style={{ color: "hsl(var(--primary))" }}>
-            for &ldquo;{filters.q}&rdquo;
-          </span>
-        )}
+        {filters.q ? <span className="text-xs text-text-secondary">for &ldquo;{filters.q}&rdquo;</span> : null}
       </div>
 
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
-            key="skeleton"
+            key="loading"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
-            {Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonCard key={i} />
+            {Array.from({ length: 8 }).map((_, index) => (
+              <SkeletonCard key={index} />
             ))}
           </motion.div>
         ) : data?.items.length === 0 ? (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-card/35 py-24 text-center"
-          >
-            <div className="mb-4 rounded-full border border-border bg-muted p-5 text-primary">
-              <Search className="h-7 w-7" />
-            </div>
-            <h3 className="text-lg font-semibold">No listings found</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
+          <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <EmptyState
+              icon={Search}
+              title="No listings found"
+              description="No assets match your current filter state. Try changing type, category, or sort order."
+            />
           </motion.div>
         ) : (
           <motion.div
@@ -88,15 +82,14 @@ export function ListingGrid({ defaultType }: { defaultType?: string }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
-            {data?.items.map((listing, i) => (
+            {(data?.items ?? []).map((listing, index) => (
               <motion.div
                 key={listing.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.04, ease: [0.34, 1.56, 0.64, 1] }}
+                transition={{ duration: 0.28, delay: index * 0.03 }}
               >
                 <ListingCard listing={listing} />
               </motion.div>
@@ -105,29 +98,31 @@ export function ListingGrid({ defaultType }: { defaultType?: string }) {
         )}
       </AnimatePresence>
 
-      {data && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-4">
-          <button
+      {data && totalPages > 1 ? (
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <Button
+            variant="secondary"
+            size="icon"
             disabled={filters.page === 1}
-            onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-30"
+            onClick={() => setFilters((prev) => ({ ...prev, page: prev.page - 1 }))}
+            type="button"
           >
             <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          <span className="font-mono text-xs text-muted-foreground">
+          </Button>
+          <span className="min-w-20 text-center font-mono text-xs text-text-secondary">
             {filters.page} / {totalPages}
           </span>
-
-          <button
+          <Button
+            variant="secondary"
+            size="icon"
             disabled={filters.page >= totalPages}
-            onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-30"
+            onClick={() => setFilters((prev) => ({ ...prev, page: prev.page + 1 }))}
+            type="button"
           >
             <ChevronRight className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

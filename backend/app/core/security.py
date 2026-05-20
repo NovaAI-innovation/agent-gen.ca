@@ -22,7 +22,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> t
             "exp": expire,
             "iat": datetime.now(timezone.utc),
             "typ": "access",
-            "iss": config.settings.PROJECT_NAME,
+            "iss": config.settings.JWT_ISSUER,
+            "aud": config.settings.JWT_AUDIENCE,
         }
     )
     return jwt.encode(to_encode, config.settings.SECRET_KEY, algorithm=ALGORITHM), expire
@@ -39,14 +40,22 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None) -> 
             "iat": datetime.now(timezone.utc),
             "jti": str(uuid.uuid4()),
             "typ": "refresh",
-            "iss": config.settings.PROJECT_NAME,
+            "iss": config.settings.JWT_ISSUER,
+            "aud": config.settings.JWT_AUDIENCE,
         }
     )
     return jwt.encode(to_encode, config.settings.SECRET_KEY, algorithm=ALGORITHM), expire
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, config.settings.SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(
+        token,
+        config.settings.SECRET_KEY,
+        algorithms=[ALGORITHM],
+        audience=config.settings.JWT_AUDIENCE,
+        issuer=config.settings.JWT_ISSUER,
+        options={"leeway": config.settings.JWT_LEEWAY_SECONDS},
+    )
 
 
 def hash_token(token: str) -> str:

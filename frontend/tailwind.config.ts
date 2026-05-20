@@ -1,127 +1,105 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
-  darkMode: ['class'],
+  darkMode: "class",
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   theme: {
     container: {
       center: true,
-      padding: '2rem',
-      screens: { '2xl': '1400px' },
+      padding: "2rem",
+      screens: { "2xl": "1400px" },
     },
     extend: {
       fontFamily: {
-        sans:    ['Space Grotesk', 'system-ui', 'sans-serif'],
-        mono:    ['JetBrains Mono', 'monospace'],
-        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        sans: ["var(--font-body)", "Manrope", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        display: ["var(--font-display)", "Chakra Petch", "sans-serif"],
       },
       colors: {
-        border:     'hsl(var(--border))',
-        input:      'hsl(var(--input))',
-        ring:       'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT:    'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT:    'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT:    'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT:    'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT:    'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT:    'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT:    'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
-        // Fixed-value neon palette for direct use
-        neon: {
-          cyan:    '#00f3ff',
-          amber:   '#f59e0b',
-          lime:    '#39ff14',
-          purple:  '#a855f7',
+        surface: {
+          page: "hsl(var(--surface-page))",
+          elevated: "hsl(var(--surface-elevated))",
+          muted: "hsl(var(--surface-muted))",
+          hover: "hsl(var(--surface-hover))",
+          accent: "hsl(var(--surface-accent))",
         },
+        text: {
+          primary: "hsl(var(--text-primary))",
+          secondary: "hsl(var(--text-secondary))",
+          muted: "hsl(var(--text-muted))",
+        },
+        action: {
+          primary: "hsl(var(--action-primary))",
+          "primary-fg": "hsl(var(--action-primary-fg))",
+        },
+        feedback: {
+          danger: "hsl(var(--feedback-danger))",
+        },
+        "border-subtle": "hsl(var(--border-subtle))",
+        "border-strong": "hsl(var(--border-strong))",
+        "border-focus": "hsl(var(--border-focus))",
       },
       borderRadius: {
-        lg:   'var(--radius)',
-        md:   'calc(var(--radius) - 2px)',
-        sm:   'calc(var(--radius) - 4px)',
-        xl:   'calc(var(--radius) + 4px)',
-        '2xl':'calc(var(--radius) + 8px)',
-      },
-      backdropBlur: {
-        xs: '2px',
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
       },
       keyframes: {
-        'fade-up': {
-          from: { opacity: '0', transform: 'translateY(24px)' },
-          to:   { opacity: '1', transform: 'translateY(0)' },
-        },
-        'fade-in': {
-          from: { opacity: '0' },
-          to:   { opacity: '1' },
-        },
-        'scale-in': {
-          from: { opacity: '0', transform: 'scale(0.96)' },
-          to:   { opacity: '1', transform: 'scale(1)' },
-        },
         shimmer: {
-          '100%': { transform: 'translateX(100%)' },
-        },
-        'pulse-glow': {
-          '0%, 100%': { opacity: '1' },
-          '50%':       { opacity: '0.55' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%':       { transform: 'translateY(-8px)' },
-        },
-        'accordion-down': {
-          from: { height: '0' },
-          to:   { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to:   { height: '0' },
+          "100%": { transform: "translateX(100%)" },
         },
       },
       animation: {
-        'fade-up':      'fade-up 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards',
-        'fade-in':      'fade-in 0.4s ease forwards',
-        'scale-in':     'scale-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards',
-        shimmer:        'shimmer 1.8s infinite',
-        'pulse-glow':   'pulse-glow 2.5s ease-in-out infinite',
-        float:          'float 4s ease-in-out infinite',
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up':   'accordion-up 0.2s ease-out',
+        shimmer: "shimmer 1.8s infinite",
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'hero-glow':       'radial-gradient(ellipse 80% 50% at 50% -10%, hsl(183 100% 50% / 0.15), transparent)',
+      boxShadow: {
+        neon: "0 0 24px hsl(var(--action-primary) / 0.42)",
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
-}
+  plugins: [tailwindcssAnimate, typography],
+};
 
-export default config
+export default config;

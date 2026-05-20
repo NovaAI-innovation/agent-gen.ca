@@ -12,9 +12,12 @@ class PurchaseOut(BaseModel):
     buyer_id: UUID
     seller_id: UUID
     price_sol: Decimal
-    tx_signature: Optional[str]
+    amount_lamports: Optional[int] = None
+    tx_signature: Optional[str] = None
     status: PurchaseStatus
     created_at: datetime
+    # Populated on creation for paid listings so the client can build the SOL transaction.
+    seller_wallet_address: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

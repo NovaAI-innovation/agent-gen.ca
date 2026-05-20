@@ -15,6 +15,7 @@ from ..models.session import AuthSession
 from ..models.user import User
 
 bearer = HTTPBearer()
+optional_bearer = HTTPBearer(auto_error=False)
 
 
 @dataclass
@@ -60,6 +61,15 @@ async def get_current_auth_context(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
     return AuthContext(user=user, session=session, payload=payload)
+
+
+async def get_optional_auth_context(
+    credentials: HTTPAuthorizationCredentials | None = Depends(optional_bearer),
+    db: AsyncSession = Depends(get_db),
+) -> AuthContext | None:
+    if credentials is None:
+        return None
+    return await get_current_auth_context(credentials=credentials, db=db)
 
 
 async def get_current_user(context: AuthContext = Depends(get_current_auth_context)) -> User:

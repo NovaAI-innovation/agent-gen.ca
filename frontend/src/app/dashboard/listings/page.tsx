@@ -1,9 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { ListChecks, Plus } from "lucide-react";
 import { api } from "@/lib/api";
 import { ListingCard, type Listing } from "@/components/marketplace/ListingCard";
-import Link from "next/link";
+import { PageHeader } from "@/components/system/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function MyListingsPage() {
   const { data: me } = useQuery({
@@ -18,26 +22,46 @@ export default function MyListingsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">My Listings</h2>
-        <Link
-          href="/publish"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          + New Listing
-        </Link>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        icon={ListChecks}
+        eyebrow="Creator"
+        title="My listings"
+        subtitle="Manage your public assets and monitor listing quality before buyers install."
+        accentClassName="text-violet-300"
+        actions={
+          <Button asChild>
+            <Link href="/publish">
+              <Plus className="h-4 w-4" />
+              New listing
+            </Link>
+          </Button>
+        }
+      />
+
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-48 animate-pulse rounded-xl bg-muted" />)}
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton h-52 rounded-2xl" />
+          ))}
         </div>
       ) : listings && listings.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {listings.map((l) => <ListingCard key={l.id} listing={l} />)}
+          {listings.map((listing) => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">You haven't published any listings yet.</p>
+        <EmptyState
+          icon={ListChecks}
+          title="No listings published yet"
+          description="Create your first listing to start building creator reputation and install momentum."
+          action={
+            <Button asChild>
+              <Link href="/publish">Create listing</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   );

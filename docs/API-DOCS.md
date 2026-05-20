@@ -1,145 +1,84 @@
-# Agent-Gen.ca API Documentation
+# API Docs
 
-## 🏠 Base URL
+## Base URLs
+1. Local backend: `http://localhost:8000`
+2. Production API (example): `https://api.agent-gen.ca`
+
+## Health
+1. `GET /health`
+
+## Authentication (Solana wallet)
+
+### Get challenge
+1. `GET /auth/challenge?wallet=<base58_pubkey>`
+2. Response includes:
+   1. `challenge_id`
+   2. `nonce`
+   3. `domain`
+   4. `uri`
+   5. `chain_id`
+   6. `issued_at`
+   7. `expires_at`
+   8. `message`
+
+### Verify signature
+1. `POST /auth/verify`
+2. Body:
+```json
+{
+  "wallet": "<base58_pubkey>",
+  "challenge_id": "<uuid>",
+  "nonce": "<nonce>",
+  "signature": "<base64_signature>"
+}
 ```
-http://localhost:8000
-https://api.agent-gen.ca (production)
-```
-
-## 🔐 Authentication (SIWE + JWT)
-
-### 1. SIWE Verify
-**POST** `/auth/siwe/verify`
-
-```bash
-curl -X POST "http://localhost:8000/auth/siwe/verify" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "agent-gen.ca wants you to sign in with your Ethereum account:\n...",
-    "signature": "0x..."
-  }'
-```
-
-**Response:**
+3. Response:
 ```json
 {
   "access_token": "eyJ...",
-  "token_type": "bearer"
+  "token_type": "bearer",
+  "wallet_address": "<base58_pubkey>",
+  "session_id": "<uuid>",
+  "expires_at": "2026-04-03T00:00:00Z"
 }
 ```
 
-### Usage
-All subsequent requests use `Authorization: Bearer <access_token>`
-
-## ✅ Health Check
-**GET** `/health`
-```bash
-curl http://localhost:8000/health
-```
-**Response:** `{"status": "healthy"}`
-
-## 🤖 Agents API
-
-### List Agents
-**GET** `/agents/`
-```bash
-curl -H "Authorization: Bearer eyJ..." http://localhost:8000/agents/
-```
-
-### Create Agent
-**POST** `/agents/`
-```bash
-curl -X POST -H "Authorization: Bearer eyJ..." \
-  -H "Content-Type: application/json" \
-  http://localhost:8000/agents/ \
-  -d '{"name": "MyAgent", "description": "..."}'
-```
-
-## 🛒 Marketplace API
-
-### Browse Marketplace
-**GET** `/marketplace/`
-```bash
-curl -H "Authorization: Bearer eyJ..." http://localhost:8000/marketplace/
-```
-
-## 📦 Postman Collection
-
-Save as `agent-gen.ca.postman_collection.json`:
-
+### Refresh
+1. `POST /auth/refresh`
+2. Body:
 ```json
 {
-  "info": {
-    "name": "Agent-Gen.ca API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000"
-    },
-    {
-      "key": "access_token",
-      "value": "eyJ..."
-    }
-  ],
-  "item": [
-    {
-      "name": "Health",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/health",
-          "host": ["{{base_url}}"],
-          "path": ["health"]
-        }
-      }
-    },
-    {
-      "name": "SIWE Verify",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"message\": \"agent-gen.ca wants you to sign in...\",\n  \"signature\": \"0x...\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/auth/siwe/verify",
-          "host": ["{{base_url}}"],
-          "path": ["auth", "siwe", "verify"]
-        }
-      }
-    },
-    {
-      "name": "List Agents",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{access_token}}"
-          }
-        ],
-        "url": {
-          "raw": "{{base_url}}/agents/",
-          "host": ["{{base_url}}"],
-          "path": ["agents", ""]
-        }
-      }
-    }
-  ]
+  "wallet": "<base58_pubkey>"
 }
 ```
+3. Requires refresh cookie.
 
-## 🛠 OpenAPI Spec
-Available at `/docs` (Swagger UI) and `/openapi.json`
+### Logout
+1. `POST /auth/logout`
+2. `POST /auth/logout-all`
 
----
-**Reference:** [FastAPI Docs](https://fastapi.tiangolo.com/)
+## Marketplace and listing APIs
+1. `GET /listings`
+2. `POST /listings`
+3. `GET /listings/{slug}`
+4. `PATCH /listings/{slug}`
+5. `DELETE /listings/{slug}`
+6. `GET /listings/{slug}/versions`
+7. `POST /listings/{slug}/versions`
+8. `GET /listings/{slug}/reviews`
+9. `POST /listings/{slug}/reviews`
+
+## User APIs
+1. `GET /users/me`
+2. `PATCH /users/me`
+3. `GET /users/{wallet}`
+4. `GET /users/{wallet}/listings`
+5. `POST /users/{wallet}/follow`
+6. `DELETE /users/{wallet}/follow`
+
+## Purchase APIs (current)
+1. `POST /purchases`
+2. `POST /purchases/{purchase_id}/confirm`
+3. `POST /tips`
+
+Note: Sprint 1 adds schema support for server-verified intents and on-chain transaction tracking. Intent-driven purchase APIs are added in Sprint 2.

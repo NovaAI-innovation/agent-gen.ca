@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { ListingCard, type Listing } from "@/components/marketplace/ListingCard";
+import { Panel } from "@/components/ui/Panel";
+import { BadgeCheck, Wallet } from "lucide-react";
 
 interface User {
   id: string;
@@ -27,38 +29,66 @@ export function UserProfileClient({ wallet }: { wallet: string }) {
     enabled: !!user,
   });
 
-  if (isLoading) return <div className="animate-pulse h-32 rounded-xl bg-muted" />;
-  if (!user) return <p className="text-muted-foreground">User not found.</p>;
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="skeleton h-36 rounded-2xl" />
+        <div className="skeleton h-72 rounded-2xl" />
+      </div>
+    );
+  }
 
-  const displayName = user.username ?? `${user.wallet_address.slice(0, 6)}…${user.wallet_address.slice(-4)}`;
+  if (!user) {
+    return <p className="text-sm text-text-secondary">User not found.</p>;
+  }
+
+  const displayName = user.username ?? `${user.wallet_address.slice(0, 6)}...${user.wallet_address.slice(-4)}`;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-start gap-6">
-        <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-          {displayName.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold">{displayName}</h1>
-          {user.is_verified && (
-            <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">Verified</span>
-          )}
-          {user.bio && <p className="mt-2 text-muted-foreground">{user.bio}</p>}
-          <p className="mt-2 text-sm text-muted-foreground">Reputation: {user.reputation_score}</p>
-          <p className="text-xs text-muted-foreground font-mono mt-1">{user.wallet_address}</p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <Panel padding="lg">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border-subtle bg-surface-muted text-xl font-bold text-action-primary">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h1 className="font-display text-3xl font-bold text-text-primary">{displayName}</h1>
+              <p className="mt-1 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-text-muted">
+                <Wallet className="h-3.5 w-3.5" />
+                {user.wallet_address}
+              </p>
+              {user.bio ? <p className="mt-3 max-w-2xl text-sm text-text-secondary">{user.bio}</p> : null}
+            </div>
+          </div>
 
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Published Listings ({listings?.length ?? 0})</h2>
+          <div className="space-y-2">
+            {user.is_verified ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-action-primary/30 bg-action-primary/10 px-3 py-1 text-xs text-action-primary">
+                <BadgeCheck className="h-3.5 w-3.5" />
+                Verified
+              </span>
+            ) : null}
+            <p className="font-mono text-xs text-text-secondary">Reputation: {user.reputation_score}</p>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel padding="lg">
+        <h2 className="font-display text-2xl font-bold text-text-primary">
+          Published listings ({listings?.length ?? 0})
+        </h2>
+
         {listings && listings.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((l) => <ListingCard key={l.id} listing={l} />)}
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">No published listings yet.</p>
+          <p className="mt-3 text-sm text-text-secondary">No published listings yet.</p>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }
