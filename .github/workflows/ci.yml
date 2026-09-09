@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -20,7 +24,32 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm run test:ci
       - run: npm run build
+
+  frontend-e2e:
+    runs-on: ubuntu-latest
+    needs: frontend
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npx playwright test --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
 
   backend:
     runs-on: ubuntu-latest
@@ -40,7 +69,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql+asyncpg://agentgen:agentgen123@localhost:5432/agentgen
-      SECRET_KEY: ci-secret-key
+      SECRET_KEY: ci-secret-key-for-testing-only-32chars!!
       ENFORCE_ALEMBIC_VERSION: false
     steps:
       - uses: actions/checkout@v4
@@ -59,3 +88,28 @@ jobs:
         run: |
           cd backend
           pytest -q
+      - name: Check formatting
+        run: |
+          cd backend
+          black --check .
+          isort --check-only .
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: cd frontend && npm ci
+      - name: Frontend audit
+        run: cd frontend && npm audit --audit-level=high || true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Backend install
+        run: cd backend && pip install -e .[dev] pip-audit -q
+      - name: Backend audit
+        run: pip-audit --strict || true

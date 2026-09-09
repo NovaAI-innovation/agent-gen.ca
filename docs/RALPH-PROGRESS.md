@@ -41,3 +41,12 @@ Append one entry per completed or blocked loop run.
 - Verification: `npm run lint` — 0 errors (1 pre-existing warning). `npm run build` — 16/16 pages compiled and generated successfully.
 - Migration/rollback: CSS-only additions and new component files. No existing component API changes. Rollback reverts globals.css and Button.tsx, removes new files.
 - Follow-up: FND-004 (automated quality harness) is next — depends on FND-001 which passes.
+
+### 2026-09-09 — FND-004 — ✅ Passed
+
+- Branch: `codex/fnd-004-quality-harness`
+- Pull request: (pending)
+- Outcome: Vitest installed with jsdom, @testing-library/react, @vitejs/plugin-react. vitest.config.ts created with jsdom environment, path aliases, and v8 coverage. Test setup includes matchMedia and IntersectionObserver mocks. Playwright configured for chromium and mobile-chrome with webServer auto-start. Smoke E2E covers home, marketplace, publish page loads and keyboard focus. Two sample unit tests pass (cn utility, StatusBadge component). CI workflow expanded with frontend unit tests, E2E smoke with artifact upload on failure, backend formatting checks, and dependency audit job. scripts/verify.ps1 runs all checks locally.
+- Verification: `npm test -- --run` — 6/6 passed. `npm run build` — 16/16 pages compiled. `pytest` — 19/19 passed.
+- Migration/rollback: Dev dependencies only. No production code changes. CI workflow adds new jobs but does not remove existing ones.
+- Follow-up: FND-005 (foundation gate) is next — depends on FND-002, FND-003, FND-004, all of which now pass.

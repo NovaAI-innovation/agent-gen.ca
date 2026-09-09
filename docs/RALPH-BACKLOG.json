@@ -57,7 +57,7 @@
       "create": ["frontend/vitest.config.ts", "frontend/playwright.config.ts", "frontend/src/test/setup.ts", "tests/e2e/", "scripts/verify.ps1"],
       "acceptance": ["CI runs frontend unit, API integration, migration, E2E smoke, accessibility, dependency, and container checks.", "A failing check blocks merge."],
       "verify": ["npm test", "pytest -q", "npx playwright test", "CI dry run"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "FND-005",
