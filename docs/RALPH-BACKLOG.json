@@ -31,7 +31,7 @@
       "create": ["docs/configuration.md", "backend/tests/test_config.py", "frontend/src/lib/config.ts"],
       "acceptance": ["Production refuses placeholder secrets, loopback dependency URLs, mismatched clusters, and missing required settings.", "Frontend and backend expose one documented environment contract."],
       "verify": ["pytest backend/tests/test_config.py", "npm run build"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "FND-003",
