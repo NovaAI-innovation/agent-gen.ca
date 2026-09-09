@@ -83,7 +83,7 @@
       "create": ["db/migrations/versions/v2_identity_sessions.py", "backend/app/services/identity.py", "backend/tests/identity/"],
       "acceptance": ["Nonces are single-use and sessions rotate atomically under concurrent refresh.", "Session revocation invalidates access and refresh paths."],
       "verify": ["pytest backend/tests/identity -q", "alembic upgrade head"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-002",

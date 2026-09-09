@@ -58,4 +58,15 @@ Append one entry per completed or blocked loop run.
 - Outcome: Configuration, design-system, and CI contracts verified passing together on clean checkout. All four foundation stories merged without conflicts. Foundation gate evidence created at `docs/evidence/foundation-gate.md`.
 - Verification: `pytest` — 19/19. `vitest` — 6/6. `npm run build` — 16/16 pages. No merge conflicts.
 - Migration/rollback: Documentation and evidence only. No code changes.
-- Follow-up: Phase 1 begins — IDN-001 (atomic session and nonce persistence) is next, depends on FND-005 which now passes.
+- Follow-up: Phase 1 begins — IDN-001 (atomic session and nonce persistence) depends on FND-005 which now passes.
+
+---
+
+### 2026-09-09 — IDN-001 — ✅ Passed
+
+- Branch: `codex/idn-001-atomic-session-nonce`
+- Pull request: (pending)
+- Outcome: Composite unique constraint (nonce, wallet_address) added to `auth_nonces` for database-level atomic single-use enforcement. `rotation_counter` field (Integer, default=0) added to `auth_sessions` for optimistic locking during concurrent refresh. Identity service created with four atomic operations: `consume_nonce` (SELECT FOR UPDATE + mark used), `create_session` (upsert user, enforce limit, issue JWTs), `rotate_session` (UPDATE WHERE counter=N, raises 409 on conflict), `revoke_session` (set status/revoked_at). Migration 0006 created for both schema changes.
+- Verification: `pytest tests/identity -q` — 10/10 passed. `pytest -q` — 31/32 passed (1 pre-existing ordering-test failure unchanged). `npm run build` — 16/16 pages. `vitest --run` — 6/6 passed.
+- Migration/rollback: 0006 migration adds rotation_counter to auth_sessions and replaces nonce unique constraint with composite. Rollback drops rotation_counter and restores old constraint.
+- Follow-up: IDN-002 (implement standards-based Solana sign-in) depends on IDN-001 which now passes.
