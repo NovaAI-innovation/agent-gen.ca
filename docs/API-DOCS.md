@@ -1,29 +1,36 @@
 # API Docs
 
+> This document covers the v2 API surface. Release B endpoints are marked accordingly and are not available until the Release B gate passes.
+
 ## Base URLs
-1. Local backend: `http://localhost:8000`
-2. Production API (example): `https://api.agent-gen.ca`
+
+- Local backend: `http://localhost:8000`
+- Production API: `https://api.agent-gen.ca`
 
 ## Health
-1. `GET /health`
 
-## Authentication (Solana wallet)
+- `GET /health` — liveness check
+
+## Authentication (Identity context)
 
 ### Get challenge
-1. `GET /auth/challenge?wallet=<base58_pubkey>`
-2. Response includes:
-   1. `challenge_id`
-   2. `nonce`
-   3. `domain`
-   4. `uri`
-   5. `chain_id`
-   6. `issued_at`
-   7. `expires_at`
-   8. `message`
+
+`GET /auth/challenge?wallet=<base58_pubkey>`
+
+Response includes:
+- `challenge_id`
+- `nonce`
+- `domain`
+- `uri`
+- `chain_id`
+- `issued_at`
+- `expires_at`
+- `message`
 
 ### Verify signature
-1. `POST /auth/verify`
-2. Body:
+
+`POST /auth/verify`
+
 ```json
 {
   "wallet": "<base58_pubkey>",
@@ -32,7 +39,8 @@
   "signature": "<base64_signature>"
 }
 ```
-3. Response:
+
+Response:
 ```json
 {
   "access_token": "eyJ...",
@@ -44,41 +52,105 @@
 ```
 
 ### Refresh
-1. `POST /auth/refresh`
-2. Body:
-```json
-{
-  "wallet": "<base58_pubkey>"
-}
-```
-3. Requires refresh cookie.
 
-### Logout
-1. `POST /auth/logout`
-2. `POST /auth/logout-all`
+`POST /auth/refresh` — requires refresh cookie.
 
-## Marketplace and listing APIs
-1. `GET /listings`
-2. `POST /listings`
-3. `GET /listings/{slug}`
-4. `PATCH /listings/{slug}`
-5. `DELETE /listings/{slug}`
-6. `GET /listings/{slug}/versions`
-7. `POST /listings/{slug}/versions`
-8. `GET /listings/{slug}/reviews`
-9. `POST /listings/{slug}/reviews`
+### Session management
 
-## User APIs
-1. `GET /users/me`
-2. `PATCH /users/me`
-3. `GET /users/{wallet}`
-4. `GET /users/{wallet}/listings`
-5. `POST /users/{wallet}/follow`
-6. `DELETE /users/{wallet}/follow`
+- `POST /auth/logout` — revoke current session
+- `POST /auth/logout-all` — revoke all sessions
+- `GET /auth/sessions` — list active sessions
 
-## Purchase APIs (current)
-1. `POST /purchases`
-2. `POST /purchases/{purchase_id}/confirm`
-3. `POST /tips`
+## Creator onboarding (Identity context)
 
-Note: Sprint 1 adds schema support for server-verified intents and on-chain transaction tracking. Intent-driven purchase APIs are added in Sprint 2.
+- `POST /creators/apply` — submit creator profile (handle, display name, bio, support link, terms, payout address)
+- `GET /creators/me` — get own creator profile
+- `PATCH /creators/me` — update creator profile
+
+> Only approved creators can create drafts.
+
+## Catalog (Catalog context)
+
+- `GET /listings` — search and filter public listings
+- `GET /listings/{slug}` — get listing detail with trust signals
+- `GET /listings/{slug}/versions` — list release versions
+- `GET /listings/{slug}/reviews` — list verified reviews
+
+## Publishing (Publishing context)
+
+Requires approved creator status.
+
+- `POST /studio/listings` — create a new draft
+- `PATCH /studio/listings/{id}` — update draft (autosave)
+- `POST /studio/listings/{id}/preview` — generate preview
+- `POST /studio/listings/{id}/submit` — submit for moderation review
+- `DELETE /studio/listings/{id}` — delete draft
+
+## Studio (Catalog + Publishing context)
+
+- `GET /studio/overview` — creator dashboard summary
+- `GET /studio/listings` — list creator's drafts and published listings
+- `GET /studio/listings/{id}` — get draft detail
+- `GET /studio/analytics` — install and revenue analytics
+
+## Artifacts (Artifacts context)
+
+- `POST /artifacts/upload-url` — request a short-lived signed upload URL
+- `POST /artifacts` — register uploaded artifact with manifest
+- `GET /artifacts/{id}/status` — check scan status
+
+## Releases (Artifacts context)
+
+- `POST /studio/listings/{id}/releases` — create a new release
+- `GET /studio/listings/{id}/releases` — list releases for a listing
+- `GET /releases/{id}` — get release detail with scan result
+
+## Downloads and library (Entitlements context)
+
+- `POST /acquire/{listing_slug}` — acquire a free listing
+- `GET /library` — list acquired entitlements
+- `GET /library/{listing_id}` — get entitlement detail with download URL
+- `POST /library/{listing_id}/download` — request a short-lived download URL
+- `POST /library/{listing_id}/install-event` — record an install event
+
+## Reviews (Entitlements context)
+
+- `POST /listings/{slug}/reviews` — submit a verified review (requires entitlement)
+- `PATCH /reviews/{id}` — update own review
+- `DELETE /reviews/{id}` — delete own review
+
+## Reports (Reports context)
+
+- `POST /reports` — submit an abuse report
+- `GET /reports/{id}` — check report status
+
+## Moderation (Moderation context)
+
+Requires operator role.
+
+- `GET /admin/moderation/queue` — list pending moderation items
+- `POST /admin/moderation/{id}/approve` — approve with reason
+- `POST /admin/moderation/{id}/reject` — reject with reason
+- `POST /admin/moderation/{id}/suspend` — suspend with reason
+- `POST /admin/moderation/{id}/restore` — restore from suspension
+- `GET /admin/moderation/audit` — list moderation audit events
+
+## Payments (Release B — Payments context)
+
+- `POST /payments/intents` — create a payment intent
+- `GET /payments/intents/{id}` — get intent status
+- `POST /payments/intents/{id}/submit` — submit transaction signature
+- `GET /payments/receipts/{id}` — get payment receipt
+
+## Operations (Operations context)
+
+Requires operator role.
+
+- `GET /health/ready` — readiness check (database, Redis, workers)
+- `GET /admin/health` — dependency health detail
+- `GET /admin/metrics` — operational metrics
+- `GET /admin/audit-log` — system audit log
+
+## Public metrics
+
+- `GET /metrics/public` — time-bounded public metrics (approved creators, published listings, successful installs)
