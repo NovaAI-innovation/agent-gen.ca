@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     AUTH_RATE_LIMIT_CHALLENGE: str = "20/minute"
     AUTH_RATE_LIMIT_VERIFY: str = "10/minute"
     AUTH_RATE_LIMIT_REFRESH: str = "30/minute"
+    TRUST_PROXY_IP: str | None = None
 
     # ── JWT ───────────────────────────────────────────────────────────────
     JWT_ISSUER: str = "agent-gen.ca"
