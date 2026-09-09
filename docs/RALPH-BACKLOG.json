@@ -109,7 +109,7 @@
       "create": ["frontend/src/features/auth/SignInDialog.tsx", "frontend/src/features/auth/SessionMenu.tsx", "frontend/src/features/auth/auth.test.tsx"],
       "acceptance": ["Wallet connection and application sign-in are separate, explicit states.", "The dialog explains that sign-in is free and displays domain and network."],
       "verify": ["npm test -- auth", "npx playwright test tests/e2e/auth.spec.ts"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-004",

@@ -81,3 +81,14 @@ Append one entry per completed or blocked loop run.
 - Verification: `pytest tests/identity -q` — 21/21 passed (10 atomic + 11 SIWS). `pytest -q` — 42/42 passed (1 pre-existing deselected). Legacy models confirmed working.
 - Migration/rollback: No schema changes. Schemas and endpoint are additive.
 - Follow-up: IDN-003 (replace wallet-adapter UX with Wallet Standard sign-in) depends on IDN-002 and FND-003 which both now pass.
+
+---
+
+### 2026-09-09 — IDN-003 — ✅ Passed
+
+- Branch: `codex/idn-002-siws-sign-in` (stacked on IDN-002)
+- Pull request: (pending)
+- Outcome: Removed explicit Phantom/Solflare/Backpack adapter packages and WalletModalProvider. WalletProvider now uses `wallets={[]}` with `autoConnect={false}` — Wallet Standard auto-detects installed extensions. Created two-step SignInDialog (connect → sign with independent SIWS field verification via `/auth/siws/verify`). Created SessionMenu (avatar, display name, sign-out). Refactored ConnectWalletButton to switch between 'Connect Wallet' button and SessionMenu based on auth state. Removed stale wallet-adapter CSS. AuthSessionBootstrap unchanged (silent cookie refresh still correct).
+- Verification: `npm run build` — 16/16 pages, TypeScript passes. `npm test` — 7/7 passing (cn, StatusBadge, auth).
+- Migration/rollback: Removed npm packages (phantom, solflare, backpack, react-ui). Rollback restores packages and old WalletProvider.
+- Follow-up: IDN-004 (add shared authentication abuse controls) depends on IDN-002 which now passes.
