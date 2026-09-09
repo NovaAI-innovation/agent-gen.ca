@@ -96,7 +96,7 @@
       "create": ["backend/app/schemas/identity.py", "backend/tests/identity/test_siws.py"],
       "acceptance": ["The server verifies exact domain, URI, address, chain, nonce, issued-at, expiry, message bytes, and signature.", "Legacy signMessage remains a tested fallback."],
       "verify": ["pytest backend/tests/identity/test_siws.py -q"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-003",

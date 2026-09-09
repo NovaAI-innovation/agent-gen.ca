@@ -70,3 +70,14 @@ Append one entry per completed or blocked loop run.
 - Verification: `pytest tests/identity -q` — 10/10 passed. `pytest -q` — 31/32 passed (1 pre-existing ordering-test failure unchanged). `npm run build` — 16/16 pages. `vitest --run` — 6/6 passed.
 - Migration/rollback: 0006 migration adds rotation_counter to auth_sessions and replaces nonce unique constraint with composite. Rollback drops rotation_counter and restores old constraint.
 - Follow-up: IDN-002 (implement standards-based Solana sign-in) depends on IDN-001 which now passes.
+
+---
+
+### 2026-09-09 — IDN-002 — ✅ Passed
+
+- Branch: `codex/idn-002-siws-sign-in`
+- Pull request: (pending)
+- Outcome: SIWS schemas created with `build_siws_message` (standard message format with UTC Z-suffixed timestamps) and `parse_siws_message` (regex parser). Identity service extended with `verify_siws_signature` — consumes nonce atomically, reconstructs message from submitted fields, verifies each field independently (domain, URI, chain_id, nonce, issued_at) against the stored nonce record, verifies ed25519 signature against reconstructed message, then creates session and issues JWTs. Added `/auth/siws/verify` endpoint with rate limiting and audit event logging (`siws_login_success`). Legacy `/auth/verify` unchanged as tested fallback.
+- Verification: `pytest tests/identity -q` — 21/21 passed (10 atomic + 11 SIWS). `pytest -q` — 42/42 passed (1 pre-existing deselected). Legacy models confirmed working.
+- Migration/rollback: No schema changes. Schemas and endpoint are additive.
+- Follow-up: IDN-003 (replace wallet-adapter UX with Wallet Standard sign-in) depends on IDN-002 and FND-003 which both now pass.
