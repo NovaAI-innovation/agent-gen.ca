@@ -122,7 +122,7 @@
       "create": ["backend/tests/identity/test_rate_limits.py", "docs/runbooks/auth-abuse.md"],
       "acceptance": ["Route decorators work in the required order and limits use Redis across API workers.", "Forwarded client IPs are trusted only from the edge proxy."],
       "verify": ["pytest backend/tests/identity/test_rate_limits.py -q", "Load test returns documented 429 responses"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-005",

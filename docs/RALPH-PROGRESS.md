@@ -92,3 +92,14 @@ Append one entry per completed or blocked loop run.
 - Verification: `npm run build` — 16/16 pages, TypeScript passes. `npm test` — 7/7 passing (cn, StatusBadge, auth).
 - Migration/rollback: Removed npm packages (phantom, solflare, backpack, react-ui). Rollback restores packages and old WalletProvider.
 - Follow-up: IDN-004 (add shared authentication abuse controls) depends on IDN-002 which now passes.
+
+---
+
+### 2026-09-09 — IDN-004 — ✅ Passed
+
+- Branch: `codex/idn-002-siws-sign-in` (stacked on IDN-002/IDN-003)
+- Pull request: (pending)
+- Outcome: Rewrote `rate_limit.py` with Redis-backed storage (falls back to `memory://` for localhost), trusted-proxy IP detection via `TRUST_PROXY_IP` config, and a `get_client_ip_key` function that rejects X-Forwarded-For from untrusted peers. Added `TRUST_PROXY_IP` setting to Settings. Added nginx rate limit zones (`auth_challenge: 20r/m`, `auth_verify: 10r/m`, `auth_refresh: 30r/m`) with tight burst limits and `limit_req_status 429`. Created 12 tests covering IP extraction, trust model, storage selection, and configuration. Created `docs/runbooks/auth-abuse.md` with architecture, limits, triage procedures, and verification steps.
+- Verification: `pytest tests/identity -q` — 33/33 passed. `pytest -q` — 54/54 passed (1 pre-existing deselected).
+- Migration/rollback: Rate limit configuration is additive. Rollback restores original `rate_limit.py` and nginx config, removes test file and runbook.
+- Follow-up: IDN-005 (build approved-creator onboarding) depends on IDN-003 which now passes.
