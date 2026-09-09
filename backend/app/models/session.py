@@ -1,10 +1,10 @@
 import uuid
 
 import app.db.database as db
-from sqlalchemy import Column, ForeignKey, String, TIMESTAMP, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, TIMESTAMP, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, text
 
 
 class AuthSession(db.Base):
@@ -14,6 +14,7 @@ class AuthSession(db.Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     wallet_address = Column(String(44), nullable=False)
     refresh_token_hash = Column(String(64), nullable=False)
+    rotation_counter = Column(Integer, nullable=False, default=0, server_default=text("0"))
     status = Column(String(20), nullable=False, default="active")
     expires_at = Column(TIMESTAMP(timezone=True), nullable=False)
     last_used_at = Column(TIMESTAMP(timezone=True), nullable=True)
