@@ -28,7 +28,9 @@ from ..crud.user import get_user_by_id, upsert_user
 from ..db.database import get_db
 from ..models.nonce import AuthNonce
 from ..models.session import AuthAuditEvent, AuthSession
+from ..schemas.identity import SIWSVerifyRequest, SIWSVerifyResponse
 from ..schemas.user import Token
+from ..services import identity as identity_svc
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -378,6 +380,61 @@ async def refresh_session(
         wallet_address=wallet,
         session_id=session.id,
         expires_at=new_access_exp,
+    )
+
+
+@limiter.limit(settings.AUTH_RATE_LIMIT_VERIFY)
+@router.post("/siws/verify", response_model=SIWSVerifyResponse)
+async def verify_siws(
+    body: SIWSVerifyRequest,
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+):
+    """Verify a standards-based SIWS signature with independent field checks.
+
+    The client submits individual SIWS fields alongside the signature.
+    The server reconstructs the message, verifies each field independently
+    against the challenge record, then verifies the ed25519 signature.
+    """
+    ip_hash, user_agent_hash = _request_metadata_hashes(request)
+
+    try:
+        session, refresh_token, access_token, access_exp, _ = (
+            await identity_svc.verify_siws_signature(
+                wallet=body.wallet,
+                challenge_id=body.challenge_id,
+                nonce=body.nonce,
+                signature=body.signature,
+                domain=body.domain,
+                uri=body.uri,
+                chain_id=body.chain_id,
+                issued_at=body.issued_at,
+                ip_hash=ip_hash,
+                user_agent_hash=user_agent_hash,
+                db=db,
+            )
+        )
+    except HTTPException:
+        raise
+
+    await _record_auth_event(
+        db,
+        event_type="siws_login_success",
+        ip_hash=ip_hash,
+        user_agent_hash=user_agent_hash,
+        user_id=session.user_id,
+        wallet_address=body.wallet,
+        session_id=session.id,
+    )
+    await db.commit()
+
+    _set_refresh_cookie(response, refresh_token, session.expires_at)
+    return SIWSVerifyResponse(
+        access_token=access_token,
+        wallet_address=body.wallet,
+        session_id=session.id,
+        expires_at=access_exp,
     )
 
 
