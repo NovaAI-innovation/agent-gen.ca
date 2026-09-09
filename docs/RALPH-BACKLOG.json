@@ -44,7 +44,7 @@
       "create": ["frontend/src/components/ui/Field.tsx", "frontend/src/components/ui/StatusBadge.tsx", "frontend/src/components/ui/Alert.tsx", "frontend/src/components/ui/Skeleton.tsx"],
       "acceptance": ["Semantic tokens cover color, type, spacing, radii, motion, focus, and status states.", "Primitives meet keyboard, focus, contrast, loading, and disabled-state requirements."],
       "verify": ["npm run lint", "Component accessibility tests"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "FND-004",

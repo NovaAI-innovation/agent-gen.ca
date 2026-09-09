@@ -32,3 +32,12 @@ Append one entry per completed or blocked loop run.
 - Verification: `pytest backend/tests/test_config.py` — 19/19 passed. `npm run build` — compiled successfully, TypeScript passed.
 - Migration/rollback: Configuration-only change. No schema or code migration. Rollback reverts to previous config.py and removes new files.
 - Follow-up: FND-003 (v2 design-system foundation) is next — depends on FND-001 which passes.
+
+### 2026-09-09 — FND-003 — ✅ Passed
+
+- Branch: `codex/fnd-003-v2-design-system`
+- Pull request: (pending)
+- Outcome: globals.css extended with full semantic token set (status feedback, typography scale, spacing scale, radii, motion, focus ring, shadows). Button.tsx enhanced with loading state (spinner + aria-busy). Four new primitives created: Field (label/error/hint wrapper with Input and Textarea), StatusBadge (10 statuses with dot indicators), Alert (info/success/warning/danger with dismiss), Skeleton (shimmer + composite CardSkeleton/RowSkeleton). DESIGN-SYSTEM.md rewritten documenting all tokens and component APIs.
+- Verification: `npm run lint` — 0 errors (1 pre-existing warning). `npm run build` — 16/16 pages compiled and generated successfully.
+- Migration/rollback: CSS-only additions and new component files. No existing component API changes. Rollback reverts globals.css and Button.tsx, removes new files.
+- Follow-up: FND-004 (automated quality harness) is next — depends on FND-001 which passes.

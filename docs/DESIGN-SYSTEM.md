@@ -1,199 +1,214 @@
-# agent-gen.ca Design System (Shadcn + Cyber-Futuristic)
+# Design System — agent-gen.ca v2
 
-## 🎨 Design Tokens
+## Overview
 
-### Colors (Tailwind + CSS Vars)
-```css
-:root {
-  /* Core */
-  --background: 10 10 10;     /* #0a0a0a */
-  --surface: 26 26 26;        /* #1a1a1a */
-  --glass: 0 0% 100%;         /* rgba(255,255,255,0.1) */
-  --text: 0 0% 100%;          /* #ffffff */
-  --text-secondary: 0 0% 69%; /* #b0b0b0 */
-  
-  /* Neon */
-  --neon-cyan: 189 100% 60%;  /* #00f5ff */
-  --neon-magenta: 330 100% 64%; /* #ff00ff */
-  --neon-lime: 150 100% 54%;  /* #39ff14 */
-  
-  /* Glows */
-  --glow-cyan: 189 100% 60% / 0.3;
-  --glow-magenta: 330 100% 64% / 0.3;
-  --glow-lime: 150 100% 54% / 0.3;
-}
-```
+The v2 design system is built on Tailwind v4 with semantic CSS custom properties, a dark-first cyber-futuristic palette, and accessible primitive components. All tokens are defined as CSS custom properties in `globals.css` and consumed via Tailwind utility classes.
 
-### Typography
-```css
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+## Token architecture
 
-:root {
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Inter', sans-serif;
-}
+Tokens follow a three-layer hierarchy:
 
-/* Sizes */
---font-xs: 0.75rem;
---font-sm: 0.875rem;
---font-base: 1rem;
---font-lg: 1.125rem;
---font-xl: 1.25rem;
---font-2xl: 1.5rem;
---font-3xl: 1.875rem;
---font-4xl: 2.25rem;
-```
+1. **Primitives** — raw color, spacing, and typography values. Never used directly in components.
+2. **Semantic tokens** — purpose-named aliases of primitives (e.g. `--surface-page`, `--text-primary`, `--feedback-danger`). Used in components.
+3. **Component tokens** — derived locally within component variants (e.g. button variants).
 
-### Spacing (8pt Scale)
-```css
---space-xs: 0.25rem;  /* 4px */
---space-sm: 0.5rem;   /* 8px */
---space-md: 1rem;     /* 16px */
---space-lg: 1.5rem;   /* 24px */
---space-xl: 2rem;     /* 32px */
---space-2xl: 3rem;    /* 48px */
-```
+### Surfaces
 
-### Shadows & Effects
-```css
-/* Glassmorphism */
-.glass {
-  background: rgb(var(--glass) / 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgb(var(--glass) / 0.2);
-}
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--surface-page` | void (near-black) | Page background |
+| `--surface-elevated` | slate-950 | Cards, panels, modals |
+| `--surface-muted` | slate-900 | Inputs, disabled areas |
+| `--surface-hover` | slate-800 | Hover state background |
+| `--surface-accent` | slate-800 | Accent-toned surfaces |
 
-/* Neon Glow */
-.neon-cyan { 
-  box-shadow: 0 0 20px rgb(var(--neon-cyan) / 0.5);
-}
-.neon-magenta { 
-  box-shadow: 0 0 20px rgb(var(--neon-magenta) / 0.5);
-}
-.neon-lime { 
-  box-shadow: 0 0 20px rgb(var(--neon-lime) / 0.5);
-}
+### Text
 
-/* Terminal Scanline */
-@keyframes scanline {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.terminal { animation: scanline 3s infinite; }
-```
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--text-primary` | text-100 (94% lightness) | Headings, body |
+| `--text-secondary` | text-300 (77% lightness) | Subtitles, labels |
+| `--text-muted` | text-500 (58% lightness) | Placeholders, hints |
+| `--text-on-action` | void | Text on action backgrounds |
 
-## 🧩 Shadcn Component Overrides
+### Actions
 
-### Button (Neon Variants)
-```tsx
-import { Button } from '@/components/ui/button'
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--action-primary` | cyan-500 | Primary buttons, links |
+| `--action-primary-fg` | void | Text on primary |
+| `--action-primary-hover` | cyan-400 | Hover state |
+| `--action-secondary` | slate-800 | Secondary buttons |
+| `--action-secondary-fg` | text-100 | Text on secondary |
 
-// Usage
-<Button className="neon-cyan bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-mono shadow-lg hover:shadow-cyan-500/50">
-  Deploy Agent
-</Button>
+### Feedback / status
 
-<Button variant="ghost" className="text-cyan-400 hover:text-white hover:neon-cyan border-cyan-400/30">
-  Connect Wallet
-</Button>
-```
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--feedback-success` | lime-500 | Success states |
+| `--feedback-success-muted` | lime-500 at 15% opacity | Success backgrounds |
+| `--feedback-warning` | amber-500 | Warning states |
+| `--feedback-warning-muted` | amber-500 at 15% opacity | Warning backgrounds |
+| `--feedback-danger` | red-500 | Error, destructive |
+| `--feedback-danger-muted` | red-500 at 15% opacity | Error backgrounds |
+| `--feedback-info` | cyan-500 | Informational |
+| `--feedback-info-muted` | cyan-500 at 15% opacity | Info backgrounds |
 
-### Card (Glassmorphism)
-```tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+### Borders
 
-<Card className="glass border-0 neon-cyan backdrop-blur-xl">
-  <CardHeader>
-    <CardTitle className="text-2xl font-mono text-cyan-400">Agent Marketplace</CardTitle>
-  </CardHeader>
-  <CardContent>
-    {/* Content */}
-  </CardContent>
-</Card>
-```
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--border-subtle` | slate-800 | Default borders |
+| `--border-strong` | slate-700 | Emphasized borders |
+| `--border-focus` | cyan-400 | Focus rings |
+| `--border-error` | red-400 | Error state borders |
 
-### Input (Terminal Style)
-```tsx
-import { Input } from '@/components/ui/input'
+### Category accents
 
-<Input 
-  className="bg-black/50 border-cyan-500/50 text-mono font-mono placeholder:text-cyan-400/50 focus:border-cyan-400 focus:neon-cyan"
-  placeholder="Enter agent prompt..."
-/>
-```
+| Token | Usage |
+|-------|-------|
+| `--accent-mcp` | MCP server listings |
+| `--accent-skill` | Agent skill listings |
+| `--accent-agent` | Custom agent listings |
+| `--accent-pack` | Pack listings |
 
-### Badge (Neon Labels)
-```tsx
-import { Badge } from '@/components/ui/badge'
+### Typography scale
 
-<Badge className="bg-gradient-to-r from-lime-400 to-emerald-500 text-black font-mono neon-lime">
-  Live
-</Badge>
-<Badge className="bg-magenta-500/20 text-magenta-400 border-magenta-500/30 neon-magenta">
-  Premium
-</Badge>
-```
+| Token | Value |
+|-------|-------|
+| `--font-size-xs` | 0.75rem (12px) |
+| `--font-size-sm` | 0.875rem (14px) |
+| `--font-size-base` | 1rem (16px) |
+| `--font-size-lg` | 1.125rem (18px) |
+| `--font-size-xl` | 1.25rem (20px) |
+| `--font-size-2xl` | 1.5rem (24px) |
+| `--font-size-3xl` | 1.875rem (30px) |
+| `--font-size-4xl` | 2.25rem (36px) |
 
-## ⚙️ Tailwind Config (tailwind.config.js)
-```js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        cyan: { 400: '#00f5ff' },
-        magenta: { 500: '#ff00ff' },
-        lime: { 400: '#39ff14' },
-      },
-      fontFamily: {
-        mono: ['JetBrains Mono'],
-        sans: ['Inter'],
-      },
-      backdropBlur: {
-        xs: '2px',
-      }
-    }
-  },
-  plugins: [require('@tailwindcss/typography')],
-}
-```
+### Spacing scale (4px base)
 
-## 🎭 Global CSS (globals.css)
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+| Token | Value |
+|-------|-------|
+| `--space-1` | 0.25rem (4px) |
+| `--space-2` | 0.5rem (8px) |
+| `--space-3` | 0.75rem (12px) |
+| `--space-4` | 1rem (16px) |
+| `--space-5` | 1.25rem (20px) |
+| `--space-6` | 1.5rem (24px) |
+| `--space-8` | 2rem (32px) |
+| `--space-10` | 2.5rem (40px) |
+| `--space-12` | 3rem (48px) |
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+### Radii
 
-@layer base {
-  :root {
-    /* CSS Vars from tokens above */
-  }
-  
-  * { @apply border-border; }
-  body { 
-    @apply bg-background text-foreground font-sans; 
-  }
-}
+| Token | Value |
+|-------|-------|
+| `--radius-sm` | 0.5rem |
+| `--radius-md` | 0.75rem |
+| `--radius-lg` | 1rem |
+| `--radius-xl` | 1.25rem |
+| `--radius-full` | 9999px |
 
-@layer components {
-  .glass { /* Glassmorphism */ }
-  .neon-cyan, .neon-magenta, .neon-lime { /* Glows */ }
-  .terminal { /* Scanline */ }
-}
-```
+### Motion
 
-## 📱 Responsive Breakpoints
-```css
-/* Tailwind defaults + custom */
---breakpoint-xs: 475px;
---breakpoint-sm: 640px;
---breakpoint-md: 768px;
---breakpoint-lg: 1024px;
---breakpoint-xl: 1280px;
---breakpoint-2xl: 1536px;
-```
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--duration-fast` | 120ms | Micro-interactions |
+| `--duration-normal` | 200ms | Standard transitions |
+| `--duration-slow` | 350ms | Page transitions |
+| `--ease-out` | cubic-bezier(0.16, 1, 0.3, 1) | Exit animations |
+| `--ease-in-out` | cubic-bezier(0.45, 0, 0.55, 1) | Balanced motion |
 
-**Production Ready for Next.js 15 + Shadcn/UI** ✅
-**Copy to frontend/lib/utils.ts, tailwind.config.js, globals.css**
+### Focus ring
+
+| Token | Value |
+|-------|-------|
+| `--ring-width` | 2px |
+| `--ring-offset` | 2px |
+| `--ring-color` | border-focus (cyan-400) |
+
+### Shadows
+
+| Token | Value |
+|-------|-------|
+| `--shadow-neon` | 0 0 12px primary at 35% |
+| `--shadow-elevated` | 0 4px 24px black at 40% |
+
+## Components
+
+### Button
+
+File: `frontend/src/components/ui/Button.tsx`
+
+Variants: `primary`, `secondary`, `ghost`, `danger`
+Sizes: `sm`, `md`, `lg`, `icon`
+Props: `loading` (shows spinner, disables button), `asChild` (Radix Slot)
+
+Accessibility:
+- Focus-visible ring on all variants
+- `disabled` and `aria-disabled` when loading or disabled
+- `aria-busy` when loading
+- Minimum 44px touch target on `md` and `lg` sizes
+
+### Field
+
+File: `frontend/src/components/ui/Field.tsx`
+
+Wraps any input with a label, error message, and hint text. Links them via `aria-describedby`, `aria-invalid`, and `aria-required`.
+
+Includes styled `Input` and `Textarea` sub-components with focus, error, and disabled states.
+
+### StatusBadge
+
+File: `frontend/src/components/ui/StatusBadge.tsx`
+
+Statuses: `draft`, `pending`, `approved`, `published`, `rejected`, `suspended`, `active`, `expired`, `error`, `scanning`
+
+Each status has a colored dot indicator (animated pulse for active states) and accessible `role="status"`.
+
+### Alert
+
+File: `frontend/src/components/ui/Alert.tsx`
+
+Variants: `info`, `success`, `warning`, `danger`
+Props: `title`, `onDismiss` (adds close button)
+
+Includes inline SVG icons and `role="alert"` for screen readers.
+
+### Panel
+
+File: `frontend/src/components/ui/Panel.tsx`
+
+Tones: `default`, `accent`, `muted`
+Padding: `none`, `sm`, `md`, `lg`
+
+Container with glassmorphism border and backdrop blur.
+
+### Skeleton
+
+File: `frontend/src/components/ui/Skeleton.tsx`
+
+Animations: `pulse`, `shimmer`, `none`
+Props: `width`, `height`, `circle`
+
+Includes composite layouts: `CardSkeleton` for marketplace cards, `RowSkeleton` for table rows.
+
+## Accessibility requirements
+
+All primitives must:
+- Support keyboard navigation (`Tab`, `Shift+Tab`, `Enter`, `Space`)
+- Show visible focus indicators (`focus-visible` ring using `--ring-*` tokens)
+- Meet WCAG 2.2 AA contrast ratios (4.5:1 for text, 3:1 for large text and UI components)
+- Respect `prefers-reduced-motion` (already in globals.css)
+- Provide appropriate ARIA attributes (`role`, `aria-label`, `aria-describedby`, `aria-invalid`, `aria-busy`)
+- Maintain minimum 44x44px touch targets for interactive elements
+
+## Fonts
+
+- **Display headings:** Chakra Petch (`--font-display`)
+- **Body text:** Manrope (`--font-body`)
+- **Monospace / code:** JetBrains Mono (`--font-mono`)
+
+## Responsive breakpoints
+
+Standard Tailwind breakpoints. Test at 320px, 768px, 1024px, and 1440px.
