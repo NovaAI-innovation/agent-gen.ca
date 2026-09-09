@@ -50,3 +50,12 @@ Append one entry per completed or blocked loop run.
 - Verification: `npm test -- --run` — 6/6 passed. `npm run build` — 16/16 pages compiled. `pytest` — 19/19 passed.
 - Migration/rollback: Dev dependencies only. No production code changes. CI workflow adds new jobs but does not remove existing ones.
 - Follow-up: FND-005 (foundation gate) is next — depends on FND-002, FND-003, FND-004, all of which now pass.
+
+### 2026-09-09 — FND-005 — ✅ Passed
+
+- Branch: `main` (integrated merge)
+- Pull request: N/A — gate verification on merged main
+- Outcome: Configuration, design-system, and CI contracts verified passing together on clean checkout. All four foundation stories merged without conflicts. Foundation gate evidence created at `docs/evidence/foundation-gate.md`.
+- Verification: `pytest` — 19/19. `vitest` — 6/6. `npm run build` — 16/16 pages. No merge conflicts.
+- Migration/rollback: Documentation and evidence only. No code changes.
+- Follow-up: Phase 1 begins — IDN-001 (atomic session and nonce persistence) is next, depends on FND-005 which now passes.

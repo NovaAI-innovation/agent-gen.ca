@@ -70,7 +70,7 @@
       "create": ["docs/evidence/foundation-gate.md"],
       "acceptance": ["Configuration, design-system, and CI contracts pass together on a clean checkout."],
       "verify": ["scripts/verify.ps1"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-001",
