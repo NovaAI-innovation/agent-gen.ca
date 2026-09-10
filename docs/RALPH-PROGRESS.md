@@ -103,3 +103,14 @@ Append one entry per completed or blocked loop run.
 - Verification: `pytest tests/identity -q` — 33/33 passed. `pytest -q` — 54/54 passed (1 pre-existing deselected).
 - Migration/rollback: Rate limit configuration is additive. Rollback restores original `rate_limit.py` and nginx config, removes test file and runbook.
 - Follow-up: IDN-005 (build approved-creator onboarding) depends on IDN-003 which now passes.
+
+---
+
+### 2026-09-09 — IDN-005 — ✅ Passed
+
+- Branch: `codex/idn-002-siws-sign-in` (stacked on IDN-002/IDN-003/IDN-004)
+- Pull request: (pending)
+- Outcome: Extended User model with creator fields: handle (unique, 30), display_name (60), support_link, terms_accepted_at, payout_address (Solana 44-char), creator_status (none|pending|approved|rejected), creator_status_at, reviewer_notes. Created migration 0007 adding columns + unique handle constraint + creator_status index. Created creators service with submit/approve/require functions. Added `/users/me/creator-profile` endpoints (GET/POST). Gated listing creation on `require_approved_creator()` — only approved creators may draft or publish. Frontend: updated authStore types, built CreatorProfileForm with handle, display_name, bio, support_link, payout_address, terms checkbox, and /studio/onboarding status page with StatusBadge + review notes display. Added success/info variants to StatusBadge. Created 8 API authorization tests.
+- Verification: `pytest tests/identity -q` — 41/41 passed. `pytest -q` — 54/54 passed. `npm run build` — 17/17 pages. `vitest --run` — 7/7 passed.
+- Migration/rollback: 0007 migration adds 8 columns, unique constraint, and index. Rollback drops all.
+- Follow-up: IDN-006 (identity gate) depends on IDN-004 and IDN-005 which both now pass.

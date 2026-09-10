@@ -135,7 +135,7 @@
       "create": ["db/migrations/versions/v2_creator_profiles.py", "backend/app/services/creators.py", "frontend/src/app/studio/onboarding/page.tsx", "frontend/src/features/creators/CreatorProfileForm.tsx"],
       "acceptance": ["A creator supplies a unique handle, display name, bio, support link, terms acceptance, and payout address.", "Only approved creators can create drafts."],
       "verify": ["API authorization tests", "Creator onboarding E2E"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "IDN-006",
