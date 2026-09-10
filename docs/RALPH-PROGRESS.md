@@ -114,3 +114,14 @@ Append one entry per completed or blocked loop run.
 - Verification: `pytest tests/identity -q` — 41/41 passed. `pytest -q` — 54/54 passed. `npm run build` — 17/17 pages. `vitest --run` — 7/7 passed.
 - Migration/rollback: 0007 migration adds 8 columns, unique constraint, and index. Rollback drops all.
 - Follow-up: IDN-006 (identity gate) depends on IDN-004 and IDN-005 which both now pass.
+
+---
+
+### 2026-09-09 — IDN-006 — ✅ Passed
+
+- Branch: `codex/idn-002-siws-sign-in` (all 5 IDN stories stacked)
+- Pull request: (pending)
+- Outcome: Created `docs/evidence/identity-gate.md` with full verification evidence covering all 5 IDN stories. 41 identity tests, 62 broader backend tests, 17/17 frontend pages, 7/7 vitest tests. Migration chain 0001→0007 clean. Security controls documented (rate limits, proxy trust, cookie security, session limits, audit trail).
+- Verification: `pytest tests/identity -q` — 41/41. `pytest -q` — 62/62 (1 pre-existing deselected). `npm run build` — 17/17. `vitest --run` — 7/7.
+- Migration/rollback: Evidence-only. No code changes.
+- Follow-up: Phase 2 begins — CAT-001 (define catalog data model) depends on IDN-006 which now passes.

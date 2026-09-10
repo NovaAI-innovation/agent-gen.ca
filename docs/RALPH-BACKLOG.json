@@ -148,7 +148,7 @@
       "create": ["docs/evidence/identity-gate.md"],
       "acceptance": ["Desktop and mobile users can sign in, restore, rotate, list, and revoke sessions without console errors."],
       "verify": ["Identity integration suite", "Manual wallet matrix"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CAT-001",
