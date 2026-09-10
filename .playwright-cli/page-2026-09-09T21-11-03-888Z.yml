@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "AGENT GEN .CA" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - generic [ref=e8]: AGENT
+            - generic [ref=e9]: GEN
+            - generic [ref=e10]: .CA
+        - generic [ref=e11]:
+          - button [disabled] [ref=e12]: Select Wallet
+          - button "Open menu" [ref=e13]:
+            - img [ref=e14]
+    - main [ref=e15]:
+      - generic [ref=e18]:
+        - generic [ref=e20]: Discover
+        - generic [ref=e21]:
+          - img [ref=e23]
+          - generic [ref=e28]:
+            - heading "Marketplace" [level=1] [ref=e29]
+            - paragraph [ref=e30]: Discover, evaluate, and install production-ready assets for AI agents.
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - paragraph [ref=e33]: Live listings
+            - paragraph [ref=e34]: 500+
+          - generic [ref=e35]:
+            - paragraph [ref=e36]: Weekly installs
+            - paragraph [ref=e37]: 8.1k
+          - generic [ref=e38]:
+            - paragraph [ref=e39]: Verified creators
+            - paragraph [ref=e40]: "312"
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - img
+            - searchbox "Search listings, tags, and creators" [ref=e45]
+          - generic [ref=e46]:
+            - button "All" [ref=e47]:
+              - img [ref=e48]
+              - text: All
+            - button "MCP" [ref=e53]:
+              - img [ref=e54]
+              - text: MCP
+            - button "Skills" [ref=e57]:
+              - img [ref=e58]
+              - text: Skills
+            - button "Agents" [ref=e60]:
+              - img [ref=e61]
+              - text: Agents
+            - button "Packs" [ref=e64]:
+              - img [ref=e65]
+              - text: Packs
+          - generic [ref=e70]:
+            - img
+            - combobox [ref=e71]:
+              - option "Newest" [selected]
+              - option "Most Downloaded"
+              - option "Top Rated"
+              - option "Price Low -> High"
+              - option "Price High -> Low"
+        - generic [ref=e73]: Querying listings
+  - button "Open Next.js Dev Tools" [ref=e88] [cursor=pointer]:
+    - img [ref=e89]

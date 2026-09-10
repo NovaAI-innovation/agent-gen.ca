@@ -1,0 +1,175 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "AGENT GEN .CA Mission Control" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - generic [ref=e8]: AGENT
+            - generic [ref=e9]: GEN
+            - generic [ref=e10]: .CA
+          - generic [ref=e11]: Mission Control
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - link "Marketplace" [ref=e14] [cursor=pointer]:
+              - /url: /marketplace
+            - link "Resources" [ref=e15] [cursor=pointer]:
+              - /url: /resources
+            - link "MCP Servers" [ref=e16] [cursor=pointer]:
+              - /url: /mcp-servers
+            - link "Skills" [ref=e17] [cursor=pointer]:
+              - /url: /agent-skills
+            - link "Agents" [ref=e18] [cursor=pointer]:
+              - /url: /agents
+            - link "Packs" [ref=e19] [cursor=pointer]:
+              - /url: /packs
+          - generic [ref=e20]:
+            - link "Publish" [ref=e21] [cursor=pointer]:
+              - /url: /publish
+            - button [disabled] [ref=e22]: Select Wallet
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - img [ref=e27]
+            - text: Mission control online
+          - heading "Build, ship, and monetize agent systems" [level=1] [ref=e29]
+          - paragraph [ref=e30]: agent-gen.ca is the marketplace for MCP servers, skills, custom agents, and packs. Designed for creator-grade publishing and buyer-grade discovery.
+          - generic [ref=e31]:
+            - link "Explore marketplace" [ref=e32] [cursor=pointer]:
+              - /url: /marketplace
+              - text: Explore marketplace
+              - img [ref=e33]
+            - link "Start publishing" [ref=e35] [cursor=pointer]:
+              - /url: /publish
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - paragraph [ref=e38]: 500+
+              - paragraph [ref=e39]: Live listings
+            - generic [ref=e40]:
+              - paragraph [ref=e41]: 8.1k
+              - paragraph [ref=e42]: Weekly installs
+            - generic [ref=e43]:
+              - paragraph [ref=e44]: "312"
+              - paragraph [ref=e45]: Verified creators
+            - generic [ref=e46]:
+              - paragraph [ref=e47]: 4.8/5
+              - paragraph [ref=e48]: Avg rating
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - paragraph [ref=e51]: Live ecosystem pulse
+            - generic [ref=e52]: LIVE
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: New listings
+              - paragraph [ref=e57]: 7 days
+            - paragraph [ref=e58]: "+24"
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - paragraph [ref=e62]: Install success
+              - paragraph [ref=e63]: rolling 30d
+            - paragraph [ref=e64]: 98.6%
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - paragraph [ref=e68]: Avg setup
+              - paragraph [ref=e69]: one click
+            - paragraph [ref=e70]: 48s
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - paragraph [ref=e74]: Creator payout
+              - paragraph [ref=e75]: settlement
+            - paragraph [ref=e76]: 24h
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: Wallet-verified publishers
+          - generic [ref=e81]: Signed provenance
+          - generic [ref=e82]: SOL-native payouts
+          - generic [ref=e83]: One-click installs
+          - generic [ref=e84]: Creator reputation graph
+        - generic [ref=e85]:
+          - generic [ref=e86]: Wallet-verified publishers
+          - generic [ref=e87]: Signed provenance
+          - generic [ref=e88]: SOL-native payouts
+          - generic [ref=e89]: One-click installs
+          - generic [ref=e90]: Creator reputation graph
+      - generic [ref=e91]:
+        - link "MCP Servers Model Context Protocol packages for production runtimes. View category" [ref=e92] [cursor=pointer]:
+          - /url: /mcp-servers
+          - generic [ref=e93]:
+            - img [ref=e95]
+            - heading "MCP Servers" [level=2] [ref=e98]
+            - paragraph [ref=e99]: Model Context Protocol packages for production runtimes.
+            - generic [ref=e100]:
+              - text: View category
+              - img [ref=e101]
+        - link "Agent Skills Composable skills and reusable tools for agents. View category" [ref=e103] [cursor=pointer]:
+          - /url: /agent-skills
+          - generic [ref=e104]:
+            - img [ref=e106]
+            - heading "Agent Skills" [level=2] [ref=e108]
+            - paragraph [ref=e109]: Composable skills and reusable tools for agents.
+            - generic [ref=e110]:
+              - text: View category
+              - img [ref=e111]
+        - link "Custom Agents Full personalities and system bundles. View category" [ref=e113] [cursor=pointer]:
+          - /url: /agents
+          - generic [ref=e114]:
+            - img [ref=e116]
+            - heading "Custom Agents" [level=2] [ref=e119]
+            - paragraph [ref=e120]: Full personalities and system bundles.
+            - generic [ref=e121]:
+              - text: View category
+              - img [ref=e122]
+        - link "Packs Curated bundles for fast deployment. View category" [ref=e124] [cursor=pointer]:
+          - /url: /packs
+          - generic [ref=e125]:
+            - img [ref=e127]
+            - heading "Packs" [level=2] [ref=e131]
+            - paragraph [ref=e132]: Curated bundles for fast deployment.
+            - generic [ref=e133]:
+              - text: View category
+              - img [ref=e134]
+      - generic [ref=e136]:
+        - generic [ref=e137]:
+          - paragraph [ref=e138]: Creator workflow
+          - heading "From idea to monetized install" [level=2] [ref=e139]
+          - generic [ref=e140]:
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - generic [ref=e146]: "01"
+              - paragraph [ref=e147]: Verify
+              - paragraph [ref=e148]: Connect wallet and establish trusted creator identity.
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - img [ref=e151]
+                - generic [ref=e154]: "02"
+              - paragraph [ref=e155]: Publish
+              - paragraph [ref=e156]: Ship listings with metadata, install docs, and pricing.
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - img [ref=e159]
+                - generic [ref=e163]: "03"
+              - paragraph [ref=e164]: Scale
+              - paragraph [ref=e165]: Track installs, retention, and payout performance.
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - paragraph [ref=e168]: Trust layer
+            - heading "Built for credible builders" [level=2] [ref=e169]
+            - paragraph [ref=e170]: Provenance signatures, reputation scoring, and transparent version history establish confidence before every install.
+          - generic [ref=e171]:
+            - generic [ref=e172]:
+              - generic [ref=e173]: Average creator retention
+              - generic [ref=e174]: 87%
+            - generic [ref=e175]:
+              - generic [ref=e176]: Median install rating
+              - generic [ref=e177]:
+                - img [ref=e178]
+                - text: "4.8"
+            - generic [ref=e180]:
+              - generic [ref=e181]: Weekly downloads
+              - generic [ref=e182]:
+                - img [ref=e183]
+                - text: 12.4k
+  - button "Open Next.js Dev Tools" [ref=e191] [cursor=pointer]:
+    - img [ref=e192]

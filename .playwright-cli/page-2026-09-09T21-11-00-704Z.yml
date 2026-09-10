@@ -1,0 +1,160 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "AGENT GEN .CA" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - generic [ref=e8]: AGENT
+            - generic [ref=e9]: GEN
+            - generic [ref=e10]: .CA
+        - generic [ref=e11]:
+          - button [disabled] [ref=e12]: Select Wallet
+          - button "Open menu" [ref=e13]:
+            - img [ref=e14]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - img [ref=e19]
+            - text: Mission control online
+          - heading "Build, ship, and monetize agent systems" [level=1] [ref=e21]
+          - paragraph [ref=e22]: agent-gen.ca is the marketplace for MCP servers, skills, custom agents, and packs. Designed for creator-grade publishing and buyer-grade discovery.
+          - generic [ref=e23]:
+            - link "Explore marketplace" [ref=e24] [cursor=pointer]:
+              - /url: /marketplace
+              - text: Explore marketplace
+              - img [ref=e25]
+            - link "Start publishing" [ref=e27] [cursor=pointer]:
+              - /url: /publish
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - paragraph [ref=e30]: 500+
+              - paragraph [ref=e31]: Live listings
+            - generic [ref=e32]:
+              - paragraph [ref=e33]: 8.1k
+              - paragraph [ref=e34]: Weekly installs
+            - generic [ref=e35]:
+              - paragraph [ref=e36]: "312"
+              - paragraph [ref=e37]: Verified creators
+            - generic [ref=e38]:
+              - paragraph [ref=e39]: 4.8/5
+              - paragraph [ref=e40]: Avg rating
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - paragraph [ref=e43]: Live ecosystem pulse
+            - generic [ref=e44]: LIVE
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - paragraph [ref=e48]: New listings
+              - paragraph [ref=e49]: 7 days
+            - paragraph [ref=e50]: "+24"
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - paragraph [ref=e54]: Install success
+              - paragraph [ref=e55]: rolling 30d
+            - paragraph [ref=e56]: 98.6%
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - paragraph [ref=e60]: Avg setup
+              - paragraph [ref=e61]: one click
+            - paragraph [ref=e62]: 48s
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - paragraph [ref=e66]: Creator payout
+              - paragraph [ref=e67]: settlement
+            - paragraph [ref=e68]: 24h
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e72]: Wallet-verified publishers
+          - generic [ref=e73]: Signed provenance
+          - generic [ref=e74]: SOL-native payouts
+          - generic [ref=e75]: One-click installs
+          - generic [ref=e76]: Creator reputation graph
+        - generic [ref=e77]:
+          - generic [ref=e78]: Wallet-verified publishers
+          - generic [ref=e79]: Signed provenance
+          - generic [ref=e80]: SOL-native payouts
+          - generic [ref=e81]: One-click installs
+          - generic [ref=e82]: Creator reputation graph
+      - generic [ref=e83]:
+        - link "MCP Servers Model Context Protocol packages for production runtimes. View category" [ref=e84] [cursor=pointer]:
+          - /url: /mcp-servers
+          - generic [ref=e85]:
+            - img [ref=e87]
+            - heading "MCP Servers" [level=2] [ref=e90]
+            - paragraph [ref=e91]: Model Context Protocol packages for production runtimes.
+            - generic [ref=e92]:
+              - text: View category
+              - img [ref=e93]
+        - link "Agent Skills Composable skills and reusable tools for agents. View category" [ref=e95] [cursor=pointer]:
+          - /url: /agent-skills
+          - generic [ref=e96]:
+            - img [ref=e98]
+            - heading "Agent Skills" [level=2] [ref=e100]
+            - paragraph [ref=e101]: Composable skills and reusable tools for agents.
+            - generic [ref=e102]:
+              - text: View category
+              - img [ref=e103]
+        - link "Custom Agents Full personalities and system bundles. View category" [ref=e105] [cursor=pointer]:
+          - /url: /agents
+          - generic [ref=e106]:
+            - img [ref=e108]
+            - heading "Custom Agents" [level=2] [ref=e111]
+            - paragraph [ref=e112]: Full personalities and system bundles.
+            - generic [ref=e113]:
+              - text: View category
+              - img [ref=e114]
+        - link "Packs Curated bundles for fast deployment. View category" [ref=e116] [cursor=pointer]:
+          - /url: /packs
+          - generic [ref=e117]:
+            - img [ref=e119]
+            - heading "Packs" [level=2] [ref=e123]
+            - paragraph [ref=e124]: Curated bundles for fast deployment.
+            - generic [ref=e125]:
+              - text: View category
+              - img [ref=e126]
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - paragraph [ref=e130]: Creator workflow
+          - heading "From idea to monetized install" [level=2] [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - generic [ref=e138]: "01"
+              - paragraph [ref=e139]: Verify
+              - paragraph [ref=e140]: Connect wallet and establish trusted creator identity.
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - generic [ref=e146]: "02"
+              - paragraph [ref=e147]: Publish
+              - paragraph [ref=e148]: Ship listings with metadata, install docs, and pricing.
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - img [ref=e151]
+                - generic [ref=e155]: "03"
+              - paragraph [ref=e156]: Scale
+              - paragraph [ref=e157]: Track installs, retention, and payout performance.
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - paragraph [ref=e160]: Trust layer
+            - heading "Built for credible builders" [level=2] [ref=e161]
+            - paragraph [ref=e162]: Provenance signatures, reputation scoring, and transparent version history establish confidence before every install.
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]: Average creator retention
+              - generic [ref=e166]: 87%
+            - generic [ref=e167]:
+              - generic [ref=e168]: Median install rating
+              - generic [ref=e169]:
+                - img [ref=e170]
+                - text: "4.8"
+            - generic [ref=e172]:
+              - generic [ref=e173]: Weekly downloads
+              - generic [ref=e174]:
+                - img [ref=e175]
+                - text: 12.4k
+  - button "Open Next.js Dev Tools" [ref=e183] [cursor=pointer]:
+    - img [ref=e184]

@@ -1,0 +1,79 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "AGENT GEN .CA Mission Control" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - generic [ref=e8]: AGENT
+            - generic [ref=e9]: GEN
+            - generic [ref=e10]: .CA
+          - generic [ref=e11]: Mission Control
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - link "Marketplace" [ref=e14] [cursor=pointer]:
+              - /url: /marketplace
+            - link "Resources" [ref=e15] [cursor=pointer]:
+              - /url: /resources
+            - link "MCP Servers" [ref=e16] [cursor=pointer]:
+              - /url: /mcp-servers
+            - link "Skills" [ref=e17] [cursor=pointer]:
+              - /url: /agent-skills
+            - link "Agents" [ref=e18] [cursor=pointer]:
+              - /url: /agents
+            - link "Packs" [ref=e19] [cursor=pointer]:
+              - /url: /packs
+          - generic [ref=e20]:
+            - link "Publish" [ref=e21] [cursor=pointer]:
+              - /url: /publish
+            - button [disabled] [ref=e22]: Select Wallet
+    - main [ref=e23]:
+      - generic [ref=e26]:
+        - generic [ref=e28]: Discover
+        - generic [ref=e29]:
+          - img [ref=e31]
+          - generic [ref=e36]:
+            - heading "Marketplace" [level=1] [ref=e37]
+            - paragraph [ref=e38]: Discover, evaluate, and install production-ready assets for AI agents.
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: Live listings
+            - paragraph [ref=e42]: 500+
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: Weekly installs
+            - paragraph [ref=e45]: 8.1k
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: Verified creators
+            - paragraph [ref=e48]: "312"
+      - generic [ref=e49]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - img
+            - searchbox "Search listings, tags, and creators" [ref=e53]
+          - generic [ref=e54]:
+            - button "All" [ref=e55]:
+              - img [ref=e56]
+              - text: All
+            - button "MCP" [ref=e61]:
+              - img [ref=e62]
+              - text: MCP
+            - button "Skills" [ref=e65]:
+              - img [ref=e66]
+              - text: Skills
+            - button "Agents" [ref=e68]:
+              - img [ref=e69]
+              - text: Agents
+            - button "Packs" [ref=e72]:
+              - img [ref=e73]
+              - text: Packs
+          - generic [ref=e78]:
+            - img
+            - combobox [ref=e79]:
+              - option "Newest" [selected]
+              - option "Most Downloaded"
+              - option "Top Rated"
+              - option "Price Low -> High"
+              - option "Price High -> Low"
+        - generic [ref=e81]: Querying listings
+  - button "Open Next.js Dev Tools" [ref=e96] [cursor=pointer]:
+    - img [ref=e97]
