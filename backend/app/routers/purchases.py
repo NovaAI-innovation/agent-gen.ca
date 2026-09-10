@@ -100,7 +100,7 @@ async def initiate_purchase(
 ):
     result = await db.execute(select(Listing).where(Listing.id == data.listing_id))
     listing = result.scalar_one_or_none()
-    if not listing or not listing.is_published:
+    if not listing or listing.state != "published":
         raise HTTPException(status_code=404, detail="Listing not found")
     purchase = await _create_purchase_for_listing(listing, current_user=current_user, db=db)
     seller_wallet = await _get_seller_wallet(db, purchase.seller_id)
@@ -114,7 +114,7 @@ async def initiate_purchase_by_slug(
     db: AsyncSession = Depends(get_db),
 ):
     listing = await get_listing_by_slug(db, slug)
-    if not listing or not listing.is_published:
+    if not listing or listing.state != "published":
         raise HTTPException(status_code=404, detail="Listing not found")
     purchase = await _create_purchase_for_listing(listing, current_user=current_user, db=db)
     seller_wallet = await _get_seller_wallet(db, purchase.seller_id)

@@ -13,6 +13,7 @@ class ListingVersionOut(BaseModel):
     config_json: Optional[Any]
     install_instructions: Optional[str]
     is_latest: bool
+    state: str
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -50,7 +51,7 @@ class ListingOut(BaseModel):
     description: Optional[str]
     long_description: Optional[str]
     owner_id: UUID
-    is_published: bool
+    state: str
     is_featured: bool
     price_sol: Decimal
     download_count: int
@@ -79,7 +80,7 @@ class ListingUpdate(BaseModel):
     description: Optional[str] = None
     long_description: Optional[str] = None
     price_sol: Optional[Decimal] = None
-    is_published: Optional[bool] = None
+    state: Optional[str] = None
     tag_ids: Optional[List[int]] = None
     category_ids: Optional[List[int]] = None
 

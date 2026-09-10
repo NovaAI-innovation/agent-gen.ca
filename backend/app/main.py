@@ -71,7 +71,7 @@ def health():
     return {"status": "healthy"}
 
 
-from app.routers import auth, marketplace, listings, reviews, purchases, users, dashboard
+from app.routers import auth, marketplace, listings, reviews, purchases, users, dashboard, publishing, admin_moderation
 
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -80,3 +80,5 @@ app.include_router(reviews.router)
 app.include_router(marketplace.router)
 app.include_router(purchases.router)
 app.include_router(dashboard.router)
+app.include_router(publishing.router)
+app.include_router(admin_moderation.router)

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 
 interface AppShellProps {
@@ -17,7 +18,8 @@ export function AppShell({ children, mainClassName, contentClassName, showNav = 
       <div className="pointer-events-none fixed inset-0 -z-10 bg-noise-mask" aria-hidden="true" />
 
       {showNav ? <Navbar /> : null}
-      <main className={cn("mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32", contentClassName)}>{children}</main>
+      <main className={cn("mx-auto w-full max-w-7xl px-4 pt-28 sm:px-6 sm:pt-32", contentClassName)}>{children}</main>
+      <Footer />
     </div>
   );
 }

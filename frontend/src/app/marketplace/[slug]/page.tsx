@@ -9,7 +9,7 @@ export default async function ListingDetailPage({
   const { slug } = await params;
 
   return (
-    <AppShell contentClassName="mx-auto w-full max-w-5xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
+    <AppShell contentClassName="mx-auto w-full max-w-5xl px-4 pt-28 sm:px-6 sm:pt-32">
       <ListingDetailClient slug={slug} />
     </AppShell>
   );

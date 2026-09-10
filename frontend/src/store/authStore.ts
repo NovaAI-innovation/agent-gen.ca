@@ -10,6 +10,7 @@ interface User {
   avatar_url: string | null;
   reputation_score: number;
   is_verified: boolean;
+  creator_state: string;
 }
 
 interface AuthState {

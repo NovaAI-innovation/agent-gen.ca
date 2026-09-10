@@ -20,6 +20,7 @@ class UserPublic(BaseModel):
     avatar_url: Optional[str]
     reputation_score: int
     is_verified: bool
+    creator_state: str
     created_at: datetime
 
     model_config = {"from_attributes": True}

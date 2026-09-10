@@ -18,7 +18,7 @@ const DISCOVER_LINKS = [
 ];
 
 const CREATOR_LINKS = [
-  { href: "/publish", label: "Publish" },
+  { href: "/studio", label: "Studio" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 

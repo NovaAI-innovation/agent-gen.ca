@@ -20,6 +20,11 @@ from ..schemas.listing import (
     ListingOut, ListingCreate, ListingUpdate,
     ListingVersionOut, ListingVersionCreate, ListingInstallOut,
 )
+from ..services.catalog import (
+    validate_listing_create,
+    validate_listing_update,
+    validate_release_create,
+)
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -32,6 +37,14 @@ def _client_ip_hash(request: Request) -> str | None:
         else (request.client.host if request.client else None)
     )
     return hash_request_value(client_ip)
+
+
+def _validation_error(errors) -> HTTPException:
+    """Convert a tuple of ValidationError into a stable HTTP 422."""
+    return HTTPException(
+        status_code=422,
+        detail=[{"code": e.code, "message": e.message, "field": e.field} for e in errors],
+    )
 
 
 @router.get("", response_model=dict)
@@ -58,7 +71,17 @@ async def create(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    listing = await create_listing(db, current_user.id, data, is_published=True)
+    result = validate_listing_create(
+        title=data.title,
+        description=data.description,
+        long_description=data.long_description,
+        price_sol=data.price_sol,
+        category_ids=data.category_ids,
+        tag_ids=data.tag_ids,
+    )
+    if not result.is_valid:
+        raise _validation_error(result.errors)
+    listing = await create_listing(db, current_user.id, data, state="draft")
     await db.commit()
     return listing
 
@@ -83,6 +106,16 @@ async def update(
         raise HTTPException(status_code=404, detail="Listing not found")
     if listing.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not the owner")
+    result = validate_listing_update(
+        title=data.title,
+        description=data.description,
+        long_description=data.long_description,
+        price_sol=data.price_sol,
+        category_ids=data.category_ids,
+        tag_ids=data.tag_ids,
+    )
+    if not result.is_valid:
+        raise _validation_error(result.errors)
     listing = await update_listing(db, listing, data)
     await db.commit()
     return listing
@@ -123,6 +156,14 @@ async def publish_version(
         raise HTTPException(status_code=404, detail="Listing not found")
     if listing.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not the owner")
+    result = validate_release_create(
+        version=data.version,
+        changelog=data.changelog,
+        config_json=data.config_json,
+        install_instructions=data.install_instructions,
+    )
+    if not result.is_valid:
+        raise _validation_error(result.errors)
     version = await create_listing_version(db, listing, data)
     await db.commit()
     return version
@@ -136,7 +177,7 @@ async def install_listing(
     db: AsyncSession = Depends(get_db),
 ):
     listing = await get_listing_by_slug(db, slug)
-    if not listing or not listing.is_published:
+    if not listing or listing.state != "published":
         raise HTTPException(status_code=404, detail="Listing not found")
 
     version_result = await db.execute(

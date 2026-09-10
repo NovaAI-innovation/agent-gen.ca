@@ -47,7 +47,8 @@ async def get_listings(
     page: int = 1,
     page_size: int = 20,
 ) -> tuple[list[Listing], int]:
-    query = _listing_query().where(Listing.is_published == True)
+    # v2: only published listings appear in public queries
+    query = _listing_query().where(Listing.state == "published")
 
     if listing_type:
         query = query.where(Listing.type == listing_type)
@@ -90,11 +91,11 @@ async def get_listings_by_owner(
     db: AsyncSession,
     *,
     owner_id: UUID,
-    include_unpublished: bool = False,
+    include_drafts: bool = False,
 ) -> list[Listing]:
     query = _listing_query().where(Listing.owner_id == owner_id)
-    if not include_unpublished:
-        query = query.where(Listing.is_published == True)
+    if not include_drafts:
+        query = query.where(Listing.state == "published")
 
     result = await db.execute(query.order_by(Listing.created_at.desc()))
     return result.scalars().all()
@@ -105,7 +106,7 @@ async def create_listing(
     owner_id: UUID,
     data: ListingCreate,
     *,
-    is_published: bool = True,
+    state: str = "draft",
 ) -> Listing:
     slug = await _unique_slug(db, _slugify(data.title))
     listing = Listing(
@@ -116,7 +117,7 @@ async def create_listing(
         long_description=data.long_description,
         price_sol=data.price_sol,
         owner_id=owner_id,
-        is_published=is_published,
+        state=state,
     )
     if data.tag_ids:
         tags = (await db.execute(select(Tag).where(Tag.id.in_(data.tag_ids)))).scalars().all()
@@ -158,6 +159,7 @@ async def create_listing_version(db: AsyncSession, listing: Listing, data: Listi
         config_json=data.config_json,
         install_instructions=data.install_instructions,
         is_latest=True,
+        state="draft",
     )
     db.add(version)
     await db.flush()

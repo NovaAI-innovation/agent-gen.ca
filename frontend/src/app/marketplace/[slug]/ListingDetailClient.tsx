@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Download, Star } from "lucide-react";
+import { Download, Flag, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { TYPE_META, type Listing } from "@/components/marketplace/ListingCard";
 import { Panel } from "@/components/ui/Panel";
 import { Button } from "@/components/ui/Button";
+import { ReportDialog } from "@/features/reports/ReportDialog";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { sendSolPayment } from "@/lib/solana/sendPayment";
@@ -48,6 +49,7 @@ export function ListingDetailClient({ slug }: { slug: string }) {
 
   const [purchaseState, setPurchaseState] = useState<PurchaseState>("idle");
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", slug],
@@ -212,6 +214,17 @@ export function ListingDetailClient({ slug }: { slug: string }) {
             ))}
           </div>
         ) : null}
+
+        {/* Report */}
+        <div className="mt-5">
+          <button
+            onClick={() => setReportOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-muted px-3 py-1.5 text-xs text-text-muted transition-all hover:border-red-500/40 hover:bg-red-500/5 hover:text-red-400"
+          >
+            <Flag className="h-3 w-3" />
+            Report listing
+          </button>
+        </div>
       </Panel>
 
       {latest?.install_instructions ? (
@@ -280,6 +293,14 @@ export function ListingDetailClient({ slug }: { slug: string }) {
           </p>
         )}
       </Panel>
+
+      <ReportDialog
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        entityType="listing"
+        entityId={listing.id}
+        entityTitle={listing.title}
+      />
     </motion.div>
   );
 }

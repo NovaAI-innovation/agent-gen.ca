@@ -16,7 +16,7 @@ async def get_featured(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Listing)
         .options(selectinload(Listing.tags), selectinload(Listing.categories))
-        .where(Listing.is_featured == True, Listing.is_published == True)
+        .where(Listing.is_featured == True, Listing.state == "published")
         .order_by(Listing.download_count.desc())
         .limit(12)
     )
@@ -28,7 +28,7 @@ async def get_trending(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Listing)
         .options(selectinload(Listing.tags), selectinload(Listing.categories))
-        .where(Listing.is_published == True)
+        .where(Listing.state == "published")
         .order_by(Listing.download_count.desc(), Listing.avg_rating.desc().nulls_last())
         .limit(20)
     )

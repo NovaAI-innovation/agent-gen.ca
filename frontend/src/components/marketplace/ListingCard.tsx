@@ -42,6 +42,7 @@ export interface Listing {
   download_count: number;
   avg_rating: string | null;
   owner_id: string;
+  state: string;
   tags: { id: number; name: string }[];
 }
 

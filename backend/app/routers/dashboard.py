@@ -29,11 +29,11 @@ async def get_dashboard_overview(
         select(
             func.count(Listing.id).label("listings_count"),
             func.coalesce(
-                func.sum(case((Listing.is_published == True, 1), else_=0)),
+                func.sum(case((Listing.state == "published", 1), else_=0)),
                 0,
             ).label("published_listings"),
             func.coalesce(
-                func.sum(case((Listing.is_published == False, 1), else_=0)),
+                func.sum(case((Listing.state != "published", 1), else_=0)),
                 0,
             ).label("draft_listings"),
             func.coalesce(func.sum(Listing.download_count), 0).label("total_installs"),
