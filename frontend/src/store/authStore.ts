@@ -10,6 +10,11 @@ interface User {
   avatar_url: string | null;
   reputation_score: number;
   is_verified: boolean;
+  // Creator profile (IDN-005)
+  handle?: string | null;
+  display_name?: string | null;
+  support_link?: string | null;
+  creator_status?: "none" | "pending" | "approved" | "rejected";
 }
 
 interface AuthState {

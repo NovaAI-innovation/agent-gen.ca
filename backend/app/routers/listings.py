@@ -20,6 +20,7 @@ from ..schemas.listing import (
     ListingOut, ListingCreate, ListingUpdate,
     ListingVersionOut, ListingVersionCreate, ListingInstallOut,
 )
+from ..services.creators import require_approved_creator
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -57,8 +58,13 @@ async def create(
     data: ListingCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    is_draft: bool = Query(False, description="Create as an unpublished draft"),
 ):
-    listing = await create_listing(db, current_user.id, data, is_published=True)
+    """Create a listing. Only approved creators may create drafts or publish."""
+    require_approved_creator(current_user)
+    listing = await create_listing(
+        db, current_user.id, data, is_published=not is_draft
+    )
     await db.commit()
     return listing
 

@@ -16,6 +16,18 @@ class User(db.Base):
     avatar_url = Column(Text, nullable=True)
     reputation_score = Column(Integer, nullable=False, default=0)
     is_verified = Column(Boolean, nullable=False, default=False)
+
+    # ── Creator profile (IDN-005) ──────────────────────────────────────────
+    handle = Column(String(30), unique=True, nullable=True)  # unique creator handle
+    display_name = Column(String(60), nullable=True)
+    support_link = Column(Text, nullable=True)
+    terms_accepted_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    payout_address = Column(String(44), nullable=True)  # Solana payout wallet
+    # one of: none | pending | approved | rejected
+    creator_status = Column(String(20), nullable=False, default="none")
+    creator_status_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    reviewer_notes = Column(Text, nullable=True)  # admin notes on decision
+
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

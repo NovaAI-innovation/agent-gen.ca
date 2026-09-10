@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class Token(BaseModel):
@@ -20,7 +21,34 @@ class UserPublic(BaseModel):
     avatar_url: Optional[str]
     reputation_score: int
     is_verified: bool
+    # Creator profile fields (public)
+    handle: Optional[str] = None
+    display_name: Optional[str] = None
+    support_link: Optional[str] = None
     created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class CreatorProfileIn(BaseModel):
+    handle: str
+    display_name: str
+    bio: Optional[str] = None
+    support_link: Optional[str] = None
+    payout_address: Optional[str] = None
+    terms_accepted: bool = False
+
+
+class CreatorProfileOut(BaseModel):
+    handle: Optional[str]
+    display_name: Optional[str]
+    bio: Optional[str]
+    support_link: Optional[str]
+    payout_address: Optional[str]
+    terms_accepted_at: Optional[datetime]
+    creator_status: str
+    creator_status_at: Optional[datetime]
+    reviewer_notes: Optional[str]
 
     model_config = {"from_attributes": True}
 

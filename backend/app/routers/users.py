@@ -7,8 +7,9 @@ from ..crud.user import get_user_by_wallet, update_user
 from ..crud.listing import get_listings_by_owner
 from ..db.database import get_db
 from ..models.user import User
-from ..schemas.user import UserPublic, UserUpdate
+from ..schemas.user import UserPublic, UserUpdate, CreatorProfileIn, CreatorProfileOut
 from ..schemas.listing import ListingOut
+from ..services.creators import submit_creator_profile, get_creator_profile
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -25,6 +26,26 @@ async def update_me(
     db: AsyncSession = Depends(get_db),
 ):
     return await update_user(db, current_user, data)
+
+
+@router.get("/me/creator-profile", response_model=CreatorProfileOut)
+async def get_my_creator_profile(
+    current_user: User = Depends(get_current_user),
+):
+    """Get the current user's creator profile and status."""
+    return await get_creator_profile(current_user)
+
+
+@router.post("/me/creator-profile", response_model=CreatorProfileOut)
+async def submit_my_creator_profile(
+    data: CreatorProfileIn,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Submit or update a creator profile application."""
+    result = await submit_creator_profile(db, current_user, data)
+    await db.commit()
+    return result
 
 
 @router.get("/{wallet}", response_model=UserPublic)

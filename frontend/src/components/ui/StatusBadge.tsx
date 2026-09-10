@@ -17,6 +17,8 @@ const statusBadgeVariants = cva(
         expired: "bg-surface-muted text-text-muted border border-border-subtle",
         error: "bg-feedback-danger-muted text-feedback-danger border border-feedback-danger/20",
         scanning: "bg-feedback-info-muted text-feedback-info border border-feedback-info/20",
+        success: "bg-feedback-success-muted text-feedback-success border border-feedback-success/20",
+        info: "bg-feedback-info-muted text-feedback-info border border-feedback-info/20",
       },
     },
     defaultVariants: {
@@ -36,6 +38,8 @@ const dotColors: Record<string, string> = {
   expired: "bg-text-muted",
   error: "bg-feedback-danger",
   scanning: "bg-feedback-info animate-pulse",
+  success: "bg-feedback-success",
+  info: "bg-feedback-info",
 };
 
 export interface StatusBadgeProps
